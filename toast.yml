@@ -1,0 +1,9 @@
+image: skymanone/fleet_runner
+tasks:
+  build:
+    description: "Building package"
+    input_paths:
+      - Cargo.toml
+      - Cargo.lock
+      - src
+    command: fleet build

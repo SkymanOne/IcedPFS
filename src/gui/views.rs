@@ -1,13 +1,10 @@
 use iced::{pure::Element, Command, Subscription};
 
-pub mod welcome_view;
+pub mod welcome;
+pub mod home;
 
-pub trait BaseView<T> {
-    fn update(&mut self, event: T) -> Command<T>;
-    fn subscription(&self) -> Subscription<T>;
-    fn view(&self) -> Element<T>;
-}
 
+#[derive(Debug, Clone, PartialEq)]
 pub enum Views {
     WelcomeView,
     MainView

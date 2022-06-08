@@ -1,54 +1,105 @@
-use std::rc::Rc;
+use std::sync::Arc;
 
-use iced::pure::{Sandbox, widget::{Text}};
+use iced::pure::Application;
+use iced::pure::{widget::Text, Sandbox};
+use iced_native::subscription;
 
+use crate::gui::messages::Message;
 use crate::ipfs_client;
+use crate::ipfs_client::api::Operations;
 
-use self::views::{BaseView, welcome_view::{WelcomeMessage, WelcomeView, self}, Views};
+use self::messages::Route;
+use self::views::home::HomeView;
+use self::views::welcome::WelcomeView;
+use self::views::Views;
 
+pub mod messages;
 pub mod views;
 
-pub type IpfsRef = Rc<ipfs_client::Client>;
+pub type IpfsRef = Arc<ipfs_client::Client>;
 
-#[derive(Debug)]
-pub enum GeneralMessage {
-    WelcomeMessage(WelcomeMessage),
-    MainMessage(())
-}
-
-pub struct IcedPFS { 
+pub struct IcedPFS {
     view: Views,
     welcome_view: WelcomeView,
-    ipfs_client: IpfsRef,
+    home_view: HomeView,
 }
 
-impl Sandbox for IcedPFS{
-    type Message = GeneralMessage;
-    fn new() -> Self {
-        let client = Rc::new(ipfs_client::Client::default());
-        let welcome_view = views::welcome_view::WelcomeView::new(Rc::clone(&client));
-        IcedPFS { view: Views::WelcomeView, 
-            ipfs_client: client,
-            welcome_view }
+#[derive(Debug)]
+enum ConnectionState {
+    Disconnected,
+    Connected,
+}
+
+impl Application for IcedPFS {
+    type Message = messages::Message;
+    type Executor = iced::executor::Default;
+    type Flags = ();
+
+
+    fn new(_: Self::Flags) -> (Self, iced::Command<Self::Message>) {
+        let client = Arc::new(ipfs_client::Client::default());
+        let welcome_view = views::welcome::WelcomeView::new(Arc::clone(&client));
+        let home_view = views::home::HomeView::new(Arc::clone(&client));
+        (IcedPFS {
+            view: Views::WelcomeView,
+            welcome_view,
+            home_view,
+        }, iced::Command::none())
     }
 
     fn title(&self) -> String {
         "IcedPFS".into()
     }
 
-    fn update(&mut self, event: Self::Message) {
+     fn subscription(&self) -> iced::Subscription<Self::Message> { 
+         let ipfs_service = connect_to_ipfs();
+         let mut services = vec![ipfs_service];
+         if self.view == Views::WelcomeView {
+             services.push(self.welcome_view.subscription());
+         }
+         iced_native::Subscription::batch(services.into_iter())
+      }
+
+    fn update(&mut self, event: Self::Message) -> iced::Command<Self::Message> {
         match event {
-            GeneralMessage::WelcomeMessage(welcome_msg) => { self.welcome_view.update(welcome_msg); },
-            GeneralMessage::MainMessage(_) => todo!(),
+            messages::Message::Route(route_action) => match route_action {
+                Route::GoTo(view) => {
+                self.view = view;
+                iced::Command::none()},
+                _ => iced::Command::none(),
+            },
+            messages::Message::ConnectedToIPFS => {
+                self.welcome_view.update(event)
+            }
         }
     }
 
     fn view(&self) -> iced::pure::Element<Self::Message> {
         match self.view {
-            Views::WelcomeView => {
-                self.welcome_view.view().map(GeneralMessage::WelcomeMessage)
-            },
-            Views::MainView => Text::new("Hello, World2").into()
+            Views::WelcomeView => self.welcome_view.view(),
+            Views::MainView => self.home_view.view(),
         }
     }
+}
+
+fn connect_to_ipfs() -> iced::Subscription<Message> {
+    struct Connector;
+    subscription::unfold(
+        std::any::TypeId::of::<Connector>(),
+        ConnectionState::Disconnected,
+        |state| async move {
+            match state {
+                ConnectionState::Disconnected => {
+                    if ipfs_client::Client::join_network().is_ok() {
+                        let ipfs = ipfs_client::Client::default();
+                        let body = ipfs.list_files();
+                        println!("{:?}", body);
+                    }
+                    (Some(Message::ConnectedToIPFS), ConnectionState::Connected)
+                }
+                //TODO: regularly check for connection status
+                ConnectionState::Connected => (None, ConnectionState::Connected)
+            }
+        },
+    )
 }
