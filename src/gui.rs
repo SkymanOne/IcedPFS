@@ -1,7 +1,6 @@
 use std::sync::Arc;
 
 use iced::pure::Application;
-use iced::pure::{widget::Text, Sandbox};
 use iced_native::subscription;
 
 use crate::gui::messages::Message;
@@ -31,8 +30,8 @@ enum ConnectionState {
 }
 
 impl Application for IcedPFS {
-    type Message = messages::Message;
     type Executor = iced::executor::Default;
+    type Message = messages::Message;
     type Flags = ();
 
 
@@ -48,17 +47,8 @@ impl Application for IcedPFS {
     }
 
     fn title(&self) -> String {
-        "IcedPFS".into()
+        <&str>::into("IcedPFS")
     }
-
-     fn subscription(&self) -> iced::Subscription<Self::Message> { 
-         let ipfs_service = connect_to_ipfs();
-         let mut services = vec![ipfs_service];
-         if self.view == Views::WelcomeView {
-             services.push(self.welcome_view.subscription());
-         }
-         iced_native::Subscription::batch(services.into_iter())
-      }
 
     fn update(&mut self, event: Self::Message) -> iced::Command<Self::Message> {
         match event {
@@ -73,6 +63,15 @@ impl Application for IcedPFS {
             }
         }
     }
+
+    fn subscription(&self) -> iced::Subscription<Self::Message> {
+        let ipfs_service = connect_to_ipfs();
+        let mut services = vec![ipfs_service];
+        if self.view == Views::WelcomeView {
+            services.push(self.welcome_view.subscription());
+        }
+        iced_native::Subscription::batch(services.into_iter())
+     }
 
     fn view(&self) -> iced::pure::Element<Self::Message> {
         match self.view {

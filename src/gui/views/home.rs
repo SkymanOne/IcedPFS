@@ -1,12 +1,10 @@
 use crate::{
     gui::messages::{Message, Route},
-    gui::IpfsRef,
-    ipfs_client::{self, api::Operations, Client},
+    gui::IpfsRef
 };
 use iced::{
     pure::{
         widget::{Container, Text, Button, Column},
-        Sandbox,
     },
     Length,
 };
@@ -16,11 +14,6 @@ use super::Views;
 #[derive(Debug, Clone)]
 pub struct HomeView {
     ipfs_client: IpfsRef,
-}
-
-#[derive(Debug, Default, Clone)]
-struct State {
-    progress_messages: Vec<String>,
 }
 
 impl HomeView {

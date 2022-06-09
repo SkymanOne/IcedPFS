@@ -2,3 +2,4 @@
 .vscode/
 .cargo/
 fleet.toml
+.idea/*
