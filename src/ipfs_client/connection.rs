@@ -18,7 +18,7 @@ impl Client {
         let mut err_reader = BufReader::new(pipe.stderr.unwrap());
 
         //set string to some initial value as we want to terminate loop only when it is empty
-        let mut ready_string: String = "default".into();
+        let mut ready_string = String::from("default");
 
         //toggle value to check whether we got expected output
         let mut daemon_started = false;
@@ -34,7 +34,8 @@ impl Client {
 
         //if ipfs node is already running when "ipfs daemon" would complain about the lock
         //we also reset the string for purpose stated above
-        ready_string = "default".into();
+        ready_string.clear();
+        ready_string.push_str("default");
         while !ready_string.is_empty() && !daemon_started {
             ready_string = String::default();
             err_reader

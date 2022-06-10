@@ -1,5 +1,3 @@
-use iced::pure::{widget::Text, Sandbox};
-
 use super::views;
 
 #[derive(Debug, Clone)]

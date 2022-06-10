@@ -11,7 +11,6 @@ use iced::{
 
 use super::Views;
 
-#[derive(Debug, Clone)]
 pub struct HomeView {
     ipfs_client: IpfsRef,
 }
