@@ -1,15 +1,19 @@
 use super::views;
+use crate::ipfs_client::{models::BandwidthStats};
 
 #[derive(Debug, Clone)]
 pub enum Message {
     Route(Route),
-    ConnectedToIPFS
+    ConnectionAttempt(bool),
+    Disconnected,
+    BwStatsReceived(BandwidthStats),
+    Tick,
 }
 
 
 #[derive(Debug, Clone)]
 pub enum Route {
     GoTo(views::Views),
-    Next,
-    Back
+    _Next,
+    _Back
 }

@@ -51,8 +51,8 @@ impl Client {
         Ok(())
     }
 
-    pub fn leave_network(&self) -> Result<reqwest::blocking::Response, ClientError> {
+    pub async fn leave_network(&self) -> Result<reqwest::Response, ClientError> {
         self.http_client.post(format!("{}/api/v0/shutdown", &self.config.base_address))
-            .send().map_err(ClientError::ApiError)
+            .send().await.map_err(ClientError::ApiError)
     }
 }
