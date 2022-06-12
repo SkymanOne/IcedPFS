@@ -1,4 +1,5 @@
 use std::future::Future;
+use std::sync::Arc;
 use std::time::Duration;
 
 use iced::pure::Application;
@@ -6,6 +7,7 @@ use iced::Command;
 
 use crate::gui::messages::Message;
 use crate::ipfs_client;
+use crate::ipfs_client::api::ApiRequest;
 
 use self::messages::Route;
 use self::views::home::HomeView;
@@ -15,7 +17,7 @@ use self::views::Views;
 pub mod messages;
 pub mod views;
 
-pub type IpfsRef = ipfs_client::Client;
+pub type IpfsRef = Arc<ipfs_client::Client>;
 
 pub struct IcedPFS {
     view: Views,
@@ -37,7 +39,7 @@ impl Application for IcedPFS {
     type Flags = ();
 
     fn new(_: Self::Flags) -> (Self, iced::Command<Self::Message>) {
-        let client = ipfs_client::Client::default();
+        let client = Arc::new(ipfs_client::Client::default());
         let welcome_view = views::welcome::WelcomeView::new(client.clone());
         let home_view = views::home::HomeView::new(client.clone());
         (
@@ -75,9 +77,9 @@ impl Application for IcedPFS {
                 }
             }
             Message::Tick => {
-                let client = self.ipfs_client.clone();
+                let action = self.ipfs_client.request(None);
                 Command::perform(
-                    client.bw_stats(None),
+                    action,
                     |result| match result {
                         Ok(data) => Message::BwStatsReceived(data),
                         Err(_) => Message::Disconnected,

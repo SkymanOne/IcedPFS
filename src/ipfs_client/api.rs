@@ -1,34 +1,50 @@
+use std::future::Future;
+use std::pin::Pin;
+
 use super::models::{BandwidthStats, BandwidthStatsParams};
 use super::{Client, ClientError};
 
-impl Client {
-    /// Simple operation to list files in IPFS MFS
-    pub async fn list_files(&self) -> Result<String, ClientError> {
-        let response = self
-            .http_client
-            .post(format!("{}/files/ls", &self.config.base_address))
-            .send()
-            .await
-            .map_err(ClientError::ApiError)?;
-        response.json().await.map_err(ClientError::ApiError)
-    }
+/*
+TODO: move to the separate module
+TODO: build Request Builder for form a request to the IPFS server
+*/
+pub type FutureResult<U> = Pin<Box<dyn Future<Output = Result<U, ClientError>> + Send>>;
+pub trait ApiRequest<T, U> {
+    fn request(
+        &self,
+        params: Option<T>,
+    ) -> FutureResult<U>;
+}
 
-    pub async fn bw_stats(
-        self,
+impl Client {
+    pub fn bw_stats(
+        &self,
         params: Option<BandwidthStatsParams>,
-    ) -> Result<BandwidthStats, ClientError> {
-        let mut url = format!("{}/stats/bw?", self.config.base_address);
-        if let Some(params) = params {
-            let params = serde_urlencoded::to_string(params)
-                .map_err(ClientError::ObjectSerializationError)?;
-            url.push_str(&params);
+    ) -> impl Future<Output = Result<BandwidthStats, ClientError>> {
+        let client = self.clone();
+        async move {
+            let mut url = format!("{}/stats/bw?", client.config.base_address);
+            if let Some(params) = params {
+                let params = serde_urlencoded::to_string(params)
+                    .map_err(ClientError::ObjectSerializationError)?;
+                url.push_str(&params);
+            }
+            let response = client
+                .http_client
+                .post(url)
+                .send()
+                .await
+                .map_err(ClientError::ApiError)?;
+            response.json().await.map_err(ClientError::ApiError)
         }
-        let response = self
-            .http_client
-            .post(url)
-            .send()
-            .await
-            .map_err(ClientError::ApiError)?;
-        response.json().await.map_err(ClientError::ApiError)
+    }
+}
+
+impl ApiRequest<BandwidthStatsParams, BandwidthStats> for Client {
+    fn request(
+        &self,
+        params: Option<BandwidthStatsParams>,
+    ) -> FutureResult<BandwidthStats> {
+        Box::pin(self.bw_stats(params))
     }
 }

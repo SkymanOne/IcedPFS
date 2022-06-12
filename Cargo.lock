@@ -953,6 +953,7 @@ name = "iced_pfs"
 version = "0.1.0"
 dependencies = [
  "async-trait",
+ "futures",
  "iced",
  "iced_native",
  "reqwest",
