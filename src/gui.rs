@@ -1,3 +1,4 @@
+use std::future::Future;
 use std::time::Duration;
 
 use iced::pure::Application;
@@ -76,7 +77,7 @@ impl Application for IcedPFS {
             Message::Tick => {
                 let client = self.ipfs_client.clone();
                 Command::perform(
-                    async move { client.bw_stats(None).await },
+                    client.bw_stats(None),
                     |result| match result {
                         Ok(data) => Message::BwStatsReceived(data),
                         Err(_) => Message::Disconnected,
@@ -94,9 +95,11 @@ impl Application for IcedPFS {
     fn subscription(&self) -> iced::Subscription<Self::Message> {
         let tick_service = iced::time::every(Duration::from_secs(1)).map(|_| Message::Tick);
         let mut services = vec![tick_service];
-        if self.view == Views::WelcomeView {
-            services.push(self.welcome_view.subscription());
+        match self.view {
+            Views::WelcomeView => services.push(self.welcome_view.subscription()),
+            Views::MainView => services.push(self.home_view.subscription())
         }
+        
         iced_native::Subscription::batch(services.into_iter())
     }
 

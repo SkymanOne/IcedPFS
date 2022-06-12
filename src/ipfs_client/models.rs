@@ -1,14 +1,11 @@
 use serde::{Serialize, Deserialize};
 
 #[derive(Deserialize, Debug, Clone, Default)]
+#[serde(rename_all = "PascalCase")]
 pub struct BandwidthStats {
-    #[serde(rename = "RateIn")]
     pub rate_in: f64,
-    #[serde(rename = "RateOut")]
     pub rate_out: f64,
-    #[serde(rename = "TotalIn")]
     pub total_in: i64,
-    #[serde(rename = "TotalOut")]
     pub total_out: i64
 }
 

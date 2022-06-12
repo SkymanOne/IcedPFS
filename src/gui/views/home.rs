@@ -6,7 +6,7 @@ use iced::{
     pure::{
         widget::{Container, Text, Button, Column},
     },
-    Length,
+    Length, Subscription, Command,
 };
 
 use super::Views;
@@ -21,11 +21,11 @@ impl HomeView {
     }
 
     pub fn update(&mut self, event: Message) -> iced::Command<Message> {
-        todo!()
+        Command::none()
     }
 
     pub fn subscription(&self) -> iced::Subscription<Message> {
-        todo!()
+        Subscription::none()
     }
 
     pub fn view(&self) -> iced::pure::Element<Message> {
