@@ -8,6 +8,7 @@ use iced::Command;
 use crate::gui::messages::Message;
 use crate::ipfs_client;
 use crate::ipfs_client::api::ApiRequest;
+use crate::ipfs_client::api::bandwidth::BandwidthStatsRequest;
 
 use self::messages::Route;
 use self::views::home::HomeView;
@@ -77,7 +78,8 @@ impl Application for IcedPFS {
                 }
             }
             Message::Tick => {
-                let action = self.ipfs_client.request(None);
+                //let statsRequest = BandwidthStatsRequest::new(self.ipfs_client.clone());
+                let action = self.ipfs_client.bw_stats();
                 Command::perform(
                     action,
                     |result| match result {

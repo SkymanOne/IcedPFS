@@ -15,7 +15,7 @@ impl ToString for BandwidthStats {
     }
 }
 
-#[derive(Serialize, Default)]
+#[derive(Serialize, Default, Clone, Debug)]
 pub struct BandwidthStatsParams {
     pub peer: String,
     pub proto: String,
