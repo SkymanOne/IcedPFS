@@ -1,32 +1,22 @@
-use crate::{
-    ipfs_client::{models::{BandwidthStats, BandwidthStatsParams}, Client, ClientError},
-};
-
-use super::ApiRequest;
+use crate::ipfs_client::{models::BandwidthStats, ApiRequest, Client, ClientError, FutureResult};
 
 #[derive(Clone, Debug)]
 pub struct BandwidthStatsRequest {
-    client: Client,
     params: String,
 }
 
-impl ApiRequest<BandwidthStatsParams, BandwidthStats> for BandwidthStatsRequest {
-    fn request(&self, params: Option<BandwidthStatsParams>) -> super::FutureResult<BandwidthStats> {
+impl ApiRequest<BandwidthStats> for BandwidthStatsRequest {
+    fn request(&self, client: Client) -> FutureResult<BandwidthStats> {
         let request = self.clone();
 
         Box::pin(async move {
-            let mut url = format!("{}/stats/bw?", request.client.config.base_address);
-            // if let Some(params) = params {
-            //     let params = serde_urlencoded::to_string(params)
-            //         .map_err(ClientError::ObjectSerializationError)?;
-            //     url.push_str(&params);
-            // }
+            let mut url = format!("{}/stats/bw?", client.config.base_address);
 
-                if !request.params.is_empty() {
-                    url.push_str(&request.params)
-                }
+            if !request.params.is_empty() {
+                url.push_str(&request.params)
+            }
 
-            let response = request.client
+            let response = client
                 .http_client
                 .post(url)
                 .send()
@@ -37,10 +27,11 @@ impl ApiRequest<BandwidthStatsParams, BandwidthStats> for BandwidthStatsRequest 
     }
 }
 
-
 impl BandwidthStatsRequest {
-    pub fn new(client: Client) -> Self {
-        Self { client, params: String::new() }
+    pub fn new() -> Self {
+        Self {
+            params: String::new(),
+        }
     }
 
     pub fn to_peer(mut self, peer: &str) -> Self {

@@ -1,4 +1,3 @@
-use std::future::Future;
 use std::sync::Arc;
 use std::time::Duration;
 
@@ -7,7 +6,6 @@ use iced::Command;
 
 use crate::gui::messages::Message;
 use crate::ipfs_client;
-use crate::ipfs_client::api::ApiRequest;
 use crate::ipfs_client::api::bandwidth::BandwidthStatsRequest;
 
 use self::messages::Route;
@@ -78,8 +76,8 @@ impl Application for IcedPFS {
                 }
             }
             Message::Tick => {
-                //let statsRequest = BandwidthStatsRequest::new(self.ipfs_client.clone());
-                let action = self.ipfs_client.bw_stats();
+                let request = BandwidthStatsRequest::new();
+                let action = self.ipfs_client.make_request(request);
                 Command::perform(
                     action,
                     |result| match result {

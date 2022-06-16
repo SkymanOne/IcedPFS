@@ -14,9 +14,3 @@ impl ToString for BandwidthStats {
         format!("{:.2}b - {:.2}b - {}b - {}b", self.rate_in, self.rate_out, self.total_in, self.total_out)
     }
 }
-
-#[derive(Serialize, Default, Clone, Debug)]
-pub struct BandwidthStatsParams {
-    pub peer: String,
-    pub proto: String,
-}
