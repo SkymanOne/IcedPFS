@@ -27,7 +27,6 @@ pub enum ClientError {
     NoIPFS,
     ErrorCreatingIPFS,
     ApiError(reqwest::Error),
-    ObjectSerializationError(serde_urlencoded::ser::Error),
 }
 
 impl Default for Client {
