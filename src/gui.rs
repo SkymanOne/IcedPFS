@@ -76,6 +76,8 @@ impl Application for IcedPFS {
                 }
             }
             Message::Tick => {
+                // example using idiomatic requests
+                // let request = BandwidthStatsRequest::new().to_peer("12D3KooWFZmGztVoo2K1BcAoDEUmnp7zWFhaK5LcRHJ8R735T3eY");
                 let request = BandwidthStatsRequest::new();
                 let action = self.ipfs_client.make_request(request);
                 Command::perform(
