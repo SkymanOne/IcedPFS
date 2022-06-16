@@ -16,7 +16,7 @@ use self::views::Views;
 pub mod messages;
 pub mod views;
 
-pub type IpfsRef = Arc<ipfs_client::Client>;
+pub type IpfsRef = ipfs_client::Client;
 
 pub struct IcedPFS {
     view: Views,
@@ -38,7 +38,7 @@ impl Application for IcedPFS {
     type Flags = ();
 
     fn new(_: Self::Flags) -> (Self, iced::Command<Self::Message>) {
-        let client = Arc::new(ipfs_client::Client::default());
+        let client = ipfs_client::Client::default();
         let welcome_view = views::welcome::WelcomeView::new(client.clone());
         let home_view = views::home::HomeView::new(client.clone());
         (
