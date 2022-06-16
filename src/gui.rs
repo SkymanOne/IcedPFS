@@ -6,7 +6,7 @@ use iced::Command;
 
 use crate::gui::messages::Message;
 use crate::ipfs_client;
-use crate::ipfs_client::api::bandwidth::BandwidthStatsRequest;
+use crate::ipfs_client::api::stats::BandwidthStatsRequest;
 
 use self::messages::Route;
 use self::views::home::HomeView;
@@ -77,16 +77,14 @@ impl Application for IcedPFS {
             }
             Message::Tick => {
                 // example using idiomatic requests
-                // let request = BandwidthStatsRequest::new().to_peer("12D3KooWFZmGztVoo2K1BcAoDEUmnp7zWFhaK5LcRHJ8R735T3eY");
+                // let request = BandwidthStatsRequest::new()
+                //     .with_peer("12D3KooWER6HhMejRszMhUuCdcCyk9S2gWbph96NaazPHxLkfzPF");
                 let request = BandwidthStatsRequest::new();
                 let action = self.ipfs_client.make_request(request);
-                Command::perform(
-                    action,
-                    |result| match result {
-                        Ok(data) => Message::BwStatsReceived(data),
-                        Err(_) => Message::Disconnected,
-                    },
-                )
+                Command::perform(action, |result| match result {
+                    Ok(data) => Message::BwStatsReceived(data),
+                    Err(_) => Message::Disconnected,
+                })
             }
             Message::Disconnected => {
                 println!("Client was disconnected! Connection attempt");
@@ -101,9 +99,9 @@ impl Application for IcedPFS {
         let mut services = vec![tick_service];
         match self.view {
             Views::WelcomeView => services.push(self.welcome_view.subscription()),
-            Views::MainView => services.push(self.home_view.subscription())
+            Views::MainView => services.push(self.home_view.subscription()),
         }
-        
+
         iced_native::Subscription::batch(services.into_iter())
     }
 

@@ -1,5 +1,5 @@
-pub mod bandwidth;
+pub mod stats;
 
 pub trait ApiRoute<T> {
-    fn get_route(&self) -> String;
+    fn get_route(&self) -> &str;
 }

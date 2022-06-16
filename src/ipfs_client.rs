@@ -1,7 +1,7 @@
 use std::{io::BufRead, pin::Pin, process::Command, sync::Arc};
 
 use futures::Future;
-use serde::de::DeserializeOwned;
+use serde::{de::DeserializeOwned, Serialize};
 
 use self::api::ApiRoute;
 
@@ -46,12 +46,19 @@ impl Default for Client {
 impl Client {
     pub fn make_request<T, U>(&self, route: U) -> FutureResult<T>
     where
-        U: ApiRoute<T> + Send + 'static,
+        U: ApiRoute<T> + Serialize + Send + 'static,
         T: DeserializeOwned,
     {
         let client = self.clone();
         Box::pin(async move {
-            let url = format!("{}{}", client.config.base_address, route.get_route());
+            let result = serde_urlencoded::to_string(&route);
+
+            let params = match result {
+                Ok(val) => val,
+                Err(_) => String::new(),
+            };
+
+            let url = format!("{}{}?{}", client.config.base_address, route.get_route(), params);
             let response = client
                 .http_client
                 .post(url)
