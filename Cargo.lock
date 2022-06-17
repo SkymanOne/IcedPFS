@@ -943,7 +943,6 @@ version = "0.1.0"
 dependencies = [
  "futures",
  "iced",
- "iced_native",
  "reqwest",
  "serde",
  "serde_json",

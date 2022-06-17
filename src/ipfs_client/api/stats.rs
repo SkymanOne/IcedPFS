@@ -1,17 +1,15 @@
-use crate::ipfs_client::{models::BandwidthStats};
+use crate::ipfs_client::models::BandwidthStats;
 use serde::Serialize;
 
 use super::ApiRoute;
 
-
 #[derive(Clone, Debug, Serialize)]
 pub struct BandwidthStatsRequest<'a> {
-
     #[serde(skip_serializing_if = "Option::is_none")]
     proto: Option<&'a str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
-    peer: Option<&'a str>
+    peer: Option<&'a str>,
 }
 
 impl<'a> ApiRoute<BandwidthStats> for BandwidthStatsRequest<'a> {
@@ -24,7 +22,7 @@ impl<'a> BandwidthStatsRequest<'a> {
     pub fn new() -> Self {
         Self {
             proto: None,
-            peer: None
+            peer: None,
         }
     }
 

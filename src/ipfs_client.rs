@@ -58,7 +58,12 @@ impl Client {
                 Err(_) => String::new(),
             };
 
-            let url = format!("{}{}?{}", client.config.base_address, route.get_route(), params);
+            let url = format!(
+                "{}{}?{}",
+                client.config.base_address,
+                route.get_route(),
+                params
+            );
             let response = client
                 .http_client
                 .post(url)

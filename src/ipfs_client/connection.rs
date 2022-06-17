@@ -52,7 +52,10 @@ impl Client {
     }
 
     pub async fn leave_network(&self) -> Result<reqwest::Response, ClientError> {
-        self.http_client.post(format!("{}/api/v0/shutdown", &self.config.base_address))
-            .send().await.map_err(ClientError::ApiError)
+        self.http_client
+            .post(format!("{}/api/v0/shutdown", &self.config.base_address))
+            .send()
+            .await
+            .map_err(ClientError::ApiError)
     }
 }

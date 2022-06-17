@@ -1,16 +1,15 @@
 use crate::{
     gui::messages::{Message, Route},
-    gui::IpfsRef
+    gui::IpfsRef,
 };
 use iced::{
-    pure::{
-        widget::{Container, Text, Button, Column},
-    },
-    Length, Subscription, Command,
+    pure::widget::{Button, Column, Container, Text},
+    Command, Length, Subscription,
 };
 
 use super::Views;
 
+//TODO: custom sidebar
 pub struct HomeView {
     ipfs_client: IpfsRef,
 }
@@ -29,7 +28,8 @@ impl HomeView {
     }
 
     pub fn view(&self) -> iced::pure::Element<Message> {
-        let btn = Button::new("previous Screen").on_press(Message::Route(Route::GoTo(Views::WelcomeView)));
+        let btn = Button::new("previous Screen")
+            .on_press(Message::Route(Route::GoTo(Views::WelcomeView)));
         let col = Column::new()
             .push(Text::new("Hello, world2!"))
             .push(btn)

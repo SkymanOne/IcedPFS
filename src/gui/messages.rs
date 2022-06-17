@@ -1,5 +1,5 @@
 use super::views;
-use crate::ipfs_client::{models::BandwidthStats};
+use crate::ipfs_client::models::BandwidthStats;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -10,10 +10,9 @@ pub enum Message {
     Tick,
 }
 
-
 #[derive(Debug, Clone)]
 pub enum Route {
     GoTo(views::Views),
     _Next,
-    _Back
+    _Back,
 }

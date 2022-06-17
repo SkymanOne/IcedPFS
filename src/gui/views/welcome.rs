@@ -1,11 +1,12 @@
 use crate::{
     gui::messages::{Message, Route},
+    gui::views::Views,
     gui::IpfsRef,
-    gui::{views::Views},
-    ipfs_client::{models::BandwidthStats},
+    ipfs_client::models::BandwidthStats,
 };
 use iced::{
-    pure::widget::{Button, Column, Container, Text}, Length,
+    pure::widget::{Button, Column, Container, Text},
+    Length,
 };
 
 #[derive(Debug, Clone)]
@@ -38,7 +39,7 @@ impl WelcomeView {
                 self.progress_messages.pop();
                 if success {
                     self.progress_messages
-                        .push("Connected to IPFS network...".to_string());
+                        .push("Connected to IPFS network!".to_string());
                 } else {
                     self.progress_messages
                         .push("You don't seem to have IPFS node installed!".to_string());

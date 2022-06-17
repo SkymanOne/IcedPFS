@@ -1,8 +1,7 @@
-use std::sync::Arc;
 use std::time::Duration;
 
 use iced::pure::Application;
-use iced::Command;
+use iced::{Command, Subscription};
 
 use crate::gui::messages::Message;
 use crate::ipfs_client;
@@ -102,7 +101,7 @@ impl Application for IcedPFS {
             Views::MainView => services.push(self.home_view.subscription()),
         }
 
-        iced_native::Subscription::batch(services.into_iter())
+        Subscription::batch(services.into_iter())
     }
 
     fn view(&self) -> iced::pure::Element<Self::Message> {
