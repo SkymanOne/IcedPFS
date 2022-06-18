@@ -1,10 +1,13 @@
 use crate::{
-    gui::{messages::{Message, Route}, widgets::tab_bar::TabBar},
-    gui::IpfsRef,
+    gui::{
+        messages::{Message, Route},
+        widgets::tab_bar::TabBar,
+    },
+    gui::{widgets::tab_bar::Tab, IpfsRef},
 };
 use iced::{
     pure::widget::{Button, Column, Container, Text},
-    Command, Length, Subscription,
+    Command, Length, Padding, Subscription,
 };
 
 use super::Views;
@@ -28,16 +31,34 @@ impl HomeView {
     }
 
     pub fn view(&self) -> iced::pure::Element<Message> {
-        let btn = Button::new("previous Screen")
-            .on_press(Message::Route(Route::GoTo(Views::WelcomeView)));
+        //file and folders can be potentially be represented as buttons with come content
+        let btn = Button::new(
+            Column::new()
+                .push(Text::new("Go back"))
+                .push(Text::new("Go back"))
+                .align_items(iced::Alignment::Center),
+        )
+        .width(Length::Units(80))
+        .height(Length::Units(80))
+        .on_press(Message::Route(Route::GoTo(Views::WelcomeView)));
         let col = Column::new()
             .push(Text::new("Hello, world2!"))
             .push(btn)
-            .push(TabBar::new(Message::TabSelected))
+            .push(
+                TabBar::new(Message::TabSelected)
+                    .push(Tab::new(
+                        String::from("Hello label"),
+                        Text::new("Hello, world"),
+                    ))
+                    .push(Tab::new(
+                        String::from("Hello label"),
+                        Text::new("Hello, world"),
+                    )),
+            )
+            .push(Text::new("Some text"))
             .spacing(5)
             .align_items(iced::Alignment::Center);
         Container::new(col)
-            .padding(50)
             .width(Length::Fill)
             .height(Length::Fill)
             .center_x()

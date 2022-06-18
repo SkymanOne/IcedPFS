@@ -32,7 +32,6 @@ impl WelcomeView {
     pub fn update(&mut self, event: Message) -> iced::Command<Message> {
         match event {
             Message::BwStatsReceived(stats) => {
-                println!("{}", stats.to_string());
                 self.stats = stats;
             }
             Message::ConnectionAttempt(success) => {
