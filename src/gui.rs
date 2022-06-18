@@ -14,6 +14,7 @@ use self::views::Views;
 
 pub mod messages;
 pub mod views;
+mod widgets;
 
 pub type IpfsRef = ipfs_client::Client;
 
@@ -90,6 +91,7 @@ impl Application for IcedPFS {
                 connection_attempt()
             }
             Message::BwStatsReceived(_) => self.welcome_view.update(event),
+            Message::TabSelected(_) => todo!()
         }
     }
 

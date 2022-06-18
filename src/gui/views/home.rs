@@ -1,5 +1,5 @@
 use crate::{
-    gui::messages::{Message, Route},
+    gui::{messages::{Message, Route}, widgets::tab_bar::TabBar},
     gui::IpfsRef,
 };
 use iced::{
@@ -33,9 +33,11 @@ impl HomeView {
         let col = Column::new()
             .push(Text::new("Hello, world2!"))
             .push(btn)
-            .spacing(5);
+            .push(TabBar::new(Message::TabSelected))
+            .spacing(5)
+            .align_items(iced::Alignment::Center);
         Container::new(col)
-            .padding(10)
+            .padding(50)
             .width(Length::Fill)
             .height(Length::Fill)
             .center_x()

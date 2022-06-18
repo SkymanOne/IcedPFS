@@ -9,6 +9,8 @@ license = "MIT OR Apache-2.0"
 
 [dependencies]
 iced = { version = "0.4", features = ["pure", "tokio"] }
+iced_native = "0.5.1"
+iced_pure = "0.2.2"
 reqwest = { version = "0.11", features = ["json"] }
 futures = "0.3"
 serde = { version = "1.0", features = ["derive"] }
