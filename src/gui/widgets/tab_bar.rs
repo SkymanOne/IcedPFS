@@ -1,7 +1,7 @@
 use iced::{Background, Color, Length, Point, Size};
 use iced_native::layout::Node;
 use iced_pure::{
-    widget::{Row, Text},
+    widget::{Column, Row, Text},
     Element, Widget,
 };
 
@@ -85,17 +85,23 @@ where
     ) -> iced_native::layout::Node {
         let size = limits
             .width(Length::Fill)
-            .height(self.height)
+            .height(Length::Shrink)
             .resolve(Size::ZERO);
-        let bar = iced_native::layout::Node::new(Size::new(size.width, self.tab_height));
-        self.tabs
-            .iter()
-            .fold(Row::<Message, Renderer>::new(), |row, tab| {
-                row.push(Text::new(&tab.label))
-            })
-            .width(self.width)
-            .height(self.height)
-            .layout(renderer, limits)
+        let mut bar = iced_native::layout::Node::new(Size::new(size.width, self.tab_height));
+        let mut content_layout = self.tabs[0].content.as_widget().layout(renderer, limits);
+
+        bar.move_to(Point::new(
+            bar.bounds().x,
+            bar.bounds().y + content_layout.bounds().height,
+        ));
+
+        Node::with_children(
+            Size::new(
+                content_layout.size().width,
+                content_layout.size().height + bar.size().height,
+            ),
+            vec![content_layout, bar],
+        )
     }
 
     fn draw(
@@ -117,11 +123,12 @@ where
             iced_native::Color::BLACK,
         );
         let children = layout.children();
+        println!("{:?}", layout);
 
-        for ((i, tab), layout) in self.tabs.iter().enumerate().zip(children) {
+        for ((i, tab), lay) in self.tabs.iter().enumerate().zip(children) {
             renderer.fill_quad(
                 iced_native::renderer::Quad {
-                    bounds: layout.bounds(),
+                    bounds: lay.bounds(),
                     border_radius: 0.0,
                     border_width: 1.0,
                     border_color: Color::BLACK,

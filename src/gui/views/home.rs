@@ -6,7 +6,7 @@ use crate::{
     gui::{widgets::tab_bar::Tab, IpfsRef},
 };
 use iced::{
-    pure::widget::{Button, Column, Container, Text},
+    pure::widget::{Button, Column, Container, Text, Row},
     Command, Length, Padding, Subscription,
 };
 
@@ -38,26 +38,18 @@ impl HomeView {
                 .push(Text::new("Go back"))
                 .align_items(iced::Alignment::Center),
         )
-        .width(Length::Units(80))
-        .height(Length::Units(80))
         .on_press(Message::Route(Route::GoTo(Views::WelcomeView)));
         let col = Column::new()
             .push(Text::new("Hello, world2!"))
             .push(btn)
-            .push(
-                TabBar::new(Message::TabSelected)
-                    .push(Tab::new(
-                        String::from("Hello label"),
-                        Text::new("Hello, world"),
-                    ))
-                    .push(Tab::new(
-                        String::from("Hello label"),
-                        Text::new("Hello, world"),
-                    )),
-            )
+            .push(TabBar::new(Message::TabSelected).push(Tab::new(
+                String::from("Hello label"),
+                Row::new().push(Text::new("Hello, world")).width(Length::Fill),
+            )))
             .push(Text::new("Some text"))
             .spacing(5)
-            .align_items(iced::Alignment::Center);
+            .align_items(iced::Alignment::Center)
+            .width(Length::Fill);
         Container::new(col)
             .width(Length::Fill)
             .height(Length::Fill)
