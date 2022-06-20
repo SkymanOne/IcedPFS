@@ -1,159 +1,24 @@
-use iced::{Background, Color, Length, Point, Size};
-use iced_native::layout::Node;
-use iced_pure::{
-    widget::{Column, Row, Text},
-    Element, Widget,
-};
+use iced_lazy::pure::Component;
+use iced_pure::{Element, widget::Text};
 
-// TODO!: break down tab bar to two components: bar and the tab layout
+//TODO: implement lazy component
 
-pub struct Tab<'a, Message, Renderer>
-where
-    Renderer: iced_native::Renderer + iced_native::text::Renderer,
-{
-    content: Element<'a, Message, Renderer>,
-    label: String,
-}
+pub struct TabBarNavigation { }
 
-impl<'a, Message, Renderer> Tab<'a, Message, Renderer>
-where
-    Renderer: iced_native::Renderer + iced_native::text::Renderer<Font = iced_native::Font>,
-{
-    pub fn new<E>(label: String, content: E) -> Self
-    where
-        E: Into<Element<'a, Message, Renderer>>,
-    {
-        Self {
-            label,
-            content: content.into(),
-        }
-    }
-}
+impl<Message, Renderer> Component<Message, Renderer> for TabBarNavigation {
+    type State = ();
 
-pub struct TabBar<'a, Message, Renderer>
-where
-    Renderer: iced_native::Renderer + iced_native::text::Renderer,
-{
-    tabs: Vec<Tab<'a, Message, Renderer>>,
-    active_tab: usize,
-    height: Length,
-    width: Length,
-    tab_height: f32,
-}
+    type Event = ();
 
-impl<'a, Message, Renderer> TabBar<'a, Message, Renderer>
-where
-    Message: Clone,
-    Renderer: iced_native::Renderer + iced_native::text::Renderer<Font = iced_native::Font>,
-{
-    pub fn new<F>(callback: F) -> Self
-    where
-        F: 'static + Fn(usize) -> Message,
-    {
-        TabBar {
-            tabs: vec![],
-            active_tab: 0,
-            height: Length::Fill,
-            width: Length::Fill,
-            tab_height: 20.0,
-        }
+    fn update(
+        &mut self,
+        state: &mut Self::State,
+        event: Self::Event,
+    ) -> Option<Message> {
+        todo!()
     }
 
-    pub fn push(mut self, tab: Tab<'a, Message, Renderer>) -> Self {
-        self.tabs.push(tab);
-        self
-    }
-}
-
-impl<'a, Message, Renderer> Widget<Message, Renderer> for TabBar<'a, Message, Renderer>
-where
-    Message: Clone,
-    Renderer: iced_native::Renderer + iced_native::text::Renderer<Font = iced_native::Font>,
-{
-    fn width(&self) -> Length {
-        self.width
-    }
-
-    fn height(&self) -> Length {
-        self.height
-    }
-
-    fn layout(
-        &self,
-        renderer: &Renderer,
-        limits: &iced_native::layout::Limits,
-    ) -> iced_native::layout::Node {
-        let size = limits
-            .width(Length::Fill)
-            .height(Length::Shrink)
-            .resolve(Size::ZERO);
-        let mut bar = iced_native::layout::Node::new(Size::new(size.width, self.tab_height));
-        let mut content_layout = self.tabs[0].content.as_widget().layout(renderer, limits);
-
-        bar.move_to(Point::new(
-            bar.bounds().x,
-            bar.bounds().y + content_layout.bounds().height,
-        ));
-
-        Node::with_children(
-            Size::new(
-                content_layout.size().width,
-                content_layout.size().height + bar.size().height,
-            ),
-            vec![content_layout, bar],
-        )
-    }
-
-    fn draw(
-        &self,
-        state: &iced_pure::widget::Tree,
-        renderer: &mut Renderer,
-        style: &iced_native::renderer::Style,
-        layout: iced_native::Layout,
-        cursor_position: iced::Point,
-        viewport: &iced::Rectangle,
-    ) {
-        renderer.fill_quad(
-            iced_native::renderer::Quad {
-                bounds: layout.bounds(),
-                border_radius: 0.0,
-                border_width: 1.0,
-                border_color: iced_native::Color::BLACK,
-            },
-            iced_native::Color::BLACK,
-        );
-        let children = layout.children();
-        println!("{:?}", layout);
-
-        for ((i, tab), lay) in self.tabs.iter().enumerate().zip(children) {
-            renderer.fill_quad(
-                iced_native::renderer::Quad {
-                    bounds: lay.bounds(),
-                    border_radius: 0.0,
-                    border_width: 1.0,
-                    border_color: Color::BLACK,
-                },
-                Color::WHITE,
-            );
-            // renderer.fill_text(iced_native::text::Text {
-            //     content: &tab.label,
-            //     font: iced_native::Font::Default,
-            //     size: 11.0,
-            //     bounds: layout.children().next().expect("error").bounds(),
-            //     color: Color::BLACK,
-            //     horizontal_alignment: iced::alignment::Horizontal::Center,
-            //     vertical_alignment: iced::alignment::Vertical::Center
-            // })
-        }
-    }
-}
-
-impl<'a, Message, Renderer> From<TabBar<'a, Message, Renderer>> for Element<'a, Message, Renderer>
-where
-    Renderer: 'a + iced_native::Renderer + iced_native::text::Renderer<Font = iced_native::Font>,
-    Message: 'a + Clone,
-{
-    fn from(tab_bar: TabBar<'a, Message, Renderer>) -> Self {
-        Element::new(tab_bar)
+    fn view(&self, state: &Self::State) -> Element<Self::Event, Renderer> {
+        todo!();
     }
 }

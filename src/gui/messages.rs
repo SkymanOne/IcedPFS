@@ -8,7 +8,7 @@ pub enum Message {
     Disconnected,
     BwStatsReceived(BandwidthStats),
     Tick,
-    TabSelected(usize)
+    TabSelected(usize),
 }
 
 #[derive(Debug, Clone)]
