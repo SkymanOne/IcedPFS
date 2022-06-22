@@ -4,7 +4,7 @@ use crate::{
 };
 use iced::{
     pure::widget::{Button, Column, Container, Row, Text},
-    Command, Length, Padding, Subscription,
+    Command, Length, Padding, Rule, Subscription,
 };
 
 use super::Views;
