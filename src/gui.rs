@@ -91,7 +91,10 @@ impl Application for IcedPFS {
                 connection_attempt()
             }
             Message::BwStatsReceived(_) => self.welcome_view.update(event),
-            Message::TabSelected(_) => todo!(),
+            Message::TabSelected(i) => {
+                self.home_view.current_tab = i;
+                Command::none()
+            }
         }
     }
 

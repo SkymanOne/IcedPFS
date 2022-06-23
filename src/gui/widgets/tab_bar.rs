@@ -1,13 +1,17 @@
-use std::{fmt::Debug};
+use std::fmt::Debug;
 
 use iced::{
-    pure::{button, row, text},
-    pure::{
-        Element,
-    },
+    pure::widget::{Button, Column, Text},
+    pure::{widget::Row, Element},
     Length,
 };
-use iced_lazy::pure::Component;
+
+use crate::gui::messages::Message;
+
+pub enum Position {
+    Top,
+    Bottom,
+}
 
 pub trait Tab<Message>
 where
@@ -17,77 +21,58 @@ where
     fn view(&self) -> Element<'_, Message>;
 }
 
-#[derive(Debug, Clone)]
-pub enum Event {
-    TabChanged(usize),
-}
-
-pub struct TabBar<Message> {
+pub struct TabBar<'a, Message> {
+    //needed later for styling selected tab
     current_tab: usize,
     tabs: Vec<String>,
-    on_change: Box<dyn Fn(usize) -> Message>,
+    tab_views: Vec<Element<'a, Message>>,
+    position: Position,
 }
 
-impl<Message> TabBar<Message> {
-    pub fn new(current_tab: usize, on_change: impl Fn(usize) -> Message + 'static) -> Self {
+impl<'a> TabBar<'a, Message> {
+    pub fn new(current_tab: usize, position: Position) -> Self {
         TabBar {
             current_tab,
             tabs: vec![],
-            on_change: Box::new(on_change),
+            tab_views: vec![],
+            position,
         }
     }
 
-    pub fn push(mut self, label: String) -> Self {
+    pub fn push(mut self, label: String, content: Element<'a, Message>) -> Self {
         self.tabs.push(label);
+        self.tab_views.push(content);
         self
     }
-}
 
-impl<Message, Renderer> Component<Message, Renderer> for TabBar<Message>
-where
-    Message: Debug + Clone,
-    Renderer: iced_native::renderer::Renderer + iced_native::text::Renderer + 'static,
-{
-    type State = ();
-
-    type Event = Event;
-
-    fn update(&mut self, state: &mut Self::State, event: Self::Event) -> Option<Message> {
-        match event {
-            Event::TabChanged(i) => Some((self.on_change)(i)),
-        }
-    }
-
-    fn view(&self, _: &Self::State) -> iced_pure::Element<Self::Event, Renderer> {
-        let mut tab_row = row()
+    pub fn view(self) -> iced::pure::Element<'a, Message> {
+        let mut tab_row = Row::new()
             .align_items(iced::Alignment::Fill)
             .height(Length::Shrink)
             .width(Length::Fill);
-
         for i in 0..self.tabs.len() {
             tab_row = tab_row.push(
-                button(
-                    text(&self.tabs[i])
+                Button::new(
+                    Text::new(&self.tabs[i])
                         .width(Length::Fill)
                         .height(Length::Fill)
                         .horizontal_alignment(iced::alignment::Horizontal::Center)
                         .vertical_alignment(iced::alignment::Vertical::Center),
                 )
+                .on_press(Message::TabSelected(i))
                 .height(Length::Units(70))
                 .width(Length::Fill),
             );
         }
-
-        tab_row.into()
-    }
-}
-
-impl<'a, Message, Renderer> From<TabBar<Message>> for iced_pure::Element<'a, Message, Renderer>
-where
-    Message: 'a + Debug + Clone,
-    Renderer: iced_native::renderer::Renderer + iced_native::text::Renderer + 'static,
-{
-    fn from(numeric_input: TabBar<Message>) -> Self {
-        iced_lazy::pure::component(numeric_input)
+        match self.position {
+            Position::Bottom => Column::new()
+                .push(self.tab_views.into_iter().nth(self.current_tab).unwrap())
+                .push(tab_row)
+                .into(),
+            Position::Top => Column::new()
+                .push(tab_row)
+                .push(self.tab_views.into_iter().nth(self.current_tab).unwrap())
+                .into(),
+        }
     }
 }

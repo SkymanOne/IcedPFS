@@ -2,7 +2,7 @@ use crate::{
     gui::IpfsRef,
     gui::{
         messages::Message,
-        widgets::tab_bar::TabBar,
+        widgets::tab_bar::{TabBar, Position},
     },
 };
 use iced::{
@@ -13,7 +13,7 @@ use iced::{
 //TODO: custom sidebar
 pub struct HomeView {
     ipfs_client: IpfsRef,
-    current_tab: usize,
+    pub current_tab: usize,
 }
 
 impl HomeView {
@@ -21,7 +21,8 @@ impl HomeView {
         let current_tab = 0;
         HomeView {
             ipfs_client,
-            current_tab
+            current_tab,
+
         }
     }
 
@@ -35,19 +36,17 @@ impl HomeView {
 
     pub fn view(&self) -> iced::pure::Element<Message> {
         //file and folders can be potentially be represented as buttons with come content
-        let tabbar = TabBar::new(self.current_tab, Message::TabSelected)
-            .push("Tab 1".to_string())
-            .push("Tab 2".to_string())
-            .push("Tab 3".to_string());
-        Column::new()
-            .push(
-                Text::new("Hello, World")
+
+        let content = Text::new("Hello, World")
                     .width(Length::Fill)
                     .height(Length::Fill)
                     .horizontal_alignment(iced::alignment::Horizontal::Center)
-                    .vertical_alignment(iced::alignment::Vertical::Center),
-            )
-            .push(tabbar)
-            .into()
+                    .vertical_alignment(iced::alignment::Vertical::Center);
+
+        let tabbar = TabBar::new(self.current_tab, Position::Bottom)
+            .push("Tab 1".to_string(), content.into())
+            .push("Tab 2".to_string(), Text::new("2").width(Length::Fill).height(Length::Fill).into())
+            .push("Tab 3".to_string(), Text::new("3").width(Length::Fill).height(Length::Fill).into());
+        tabbar.view()
     }
 }
