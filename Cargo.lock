@@ -967,6 +967,7 @@ dependencies = [
  "futures",
  "iced",
  "iced_lazy",
+ "iced_native",
  "iced_pure",
  "reqwest",
  "serde",
