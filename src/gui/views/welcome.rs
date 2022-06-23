@@ -55,7 +55,7 @@ impl WelcomeView {
     }
 
     pub fn view(&self) -> iced::pure::Element<Message> {
-        let msg = Message::Route(Route::GoTo(Views::MainView));
+        let msg = Message::Route(Route::GoTo(Views::TabsView));
         let btn = Button::new("next Screen").on_press(msg);
 
         let stats = Text::new(self.stats.to_string());

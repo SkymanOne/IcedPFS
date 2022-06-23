@@ -1,49 +1,25 @@
-use crate::{
-    gui::IpfsRef,
-    gui::{
-        messages::Message,
-        widgets::tab_bar::{TabBar, Position},
-    },
-};
-use iced::{
-    pure::widget::Text,
-    Command, Subscription,
-};
+use crate::{gui::messages::Message, gui::IpfsRef};
 
-pub struct HomeView {
+use iced::pure::widget::Text;
+use iced::{Command, Subscription};
+
+#[derive(Debug, Clone, Copy)]
+pub enum MainMessage {}
+
+pub struct HomeTab {
     ipfs_client: IpfsRef,
-    pub current_tab: usize,
 }
 
-impl HomeView {
+impl HomeTab {
     pub fn new(ipfs_client: IpfsRef) -> Self {
-        let current_tab = 0;
-        HomeView {
-            ipfs_client,
-            current_tab,
-
-        }
+        HomeTab { ipfs_client }
     }
 
-    pub fn update(&mut self, event: Message) -> iced::Command<Message> {
+    pub fn update(&mut self, event: MainMessage) -> iced::Command<Message> {
         Command::none()
     }
 
-    pub fn subscription(&self) -> iced::Subscription<Message> {
-        Subscription::none()
-    }
-
     pub fn view(&self) -> iced::pure::Element<Message> {
-        //file and folders can be potentially be represented as buttons with come content
-
-        let content = Text::new("Hello, World")
-                    .horizontal_alignment(iced::alignment::Horizontal::Center)
-                    .vertical_alignment(iced::alignment::Vertical::Center);
-
-        TabBar::new(self.current_tab, Position::Bottom)
-            .push("Tab 1".to_string(), content.into())
-            .push("Tab 2".to_string(), Text::new("2").into())
-            .push("Tab 3".to_string(), Text::new("3").into())
-            .view()
+        Text::new("This is the main tab").into()
     }
 }

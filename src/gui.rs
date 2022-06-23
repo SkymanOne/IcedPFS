@@ -8,7 +8,7 @@ use crate::ipfs_client;
 use crate::ipfs_client::api::stats::BandwidthStatsRequest;
 
 use self::messages::Route;
-use self::views::home::HomeView;
+use self::views::tab::TabsView;
 use self::views::welcome::WelcomeView;
 use self::views::Views;
 
@@ -21,7 +21,7 @@ pub type IpfsRef = ipfs_client::Client;
 pub struct IcedPFS {
     view: Views,
     welcome_view: WelcomeView,
-    home_view: HomeView,
+    tabs_view: TabsView,
     ipfs_client: IpfsRef,
     connection: ConnectionState,
 }
@@ -40,12 +40,12 @@ impl Application for IcedPFS {
     fn new(_: Self::Flags) -> (Self, iced::Command<Self::Message>) {
         let client = ipfs_client::Client::default();
         let welcome_view = views::welcome::WelcomeView::new(client.clone());
-        let home_view = views::home::HomeView::new(client.clone());
+        let tabs_view = views::tab::TabsView::new(client.clone());
         (
             IcedPFS {
                 view: Views::WelcomeView,
                 welcome_view,
-                home_view,
+                tabs_view,
                 ipfs_client: client,
                 connection: ConnectionState::Disconnected,
             },
@@ -92,9 +92,10 @@ impl Application for IcedPFS {
             }
             Message::BwStatsReceived(_) => self.welcome_view.update(event),
             Message::TabSelected(i) => {
-                self.home_view.current_tab = i;
+                self.tabs_view.current_tab = i;
                 Command::none()
-            }
+            },
+            Message::Tabs(msg) => self.tabs_view.update(msg)
         }
     }
 
@@ -103,7 +104,7 @@ impl Application for IcedPFS {
         let mut services = vec![tick_service];
         match self.view {
             Views::WelcomeView => services.push(self.welcome_view.subscription()),
-            Views::MainView => services.push(self.home_view.subscription()),
+            Views::TabsView => services.push(self.tabs_view.subscription()),
         }
 
         Subscription::batch(services.into_iter())
@@ -112,7 +113,7 @@ impl Application for IcedPFS {
     fn view(&self) -> iced::pure::Element<Self::Message> {
         match self.view {
             Views::WelcomeView => self.welcome_view.view(),
-            Views::MainView => self.home_view.view(),
+            Views::TabsView => self.tabs_view.view(),
         }
     }
 }
