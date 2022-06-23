@@ -1,13 +1,14 @@
 use std::fmt::Debug;
 
 use iced::{
-    pure::widget::{Button, Column, Text},
+    pure::widget::{Button, Column, Container, Text},
     pure::{widget::Row, Element},
     Length,
 };
 
 use crate::gui::messages::Message;
 
+#[allow(dead_code)]
 pub enum Position {
     Top,
     Bottom,
@@ -64,15 +65,12 @@ impl<'a> TabBar<'a, Message> {
                 .width(Length::Fill),
             );
         }
+        let content = Container::new(self.tab_views.into_iter().nth(self.current_tab).unwrap())
+            .width(Length::Fill)
+            .height(Length::Fill);
         match self.position {
-            Position::Bottom => Column::new()
-                .push(self.tab_views.into_iter().nth(self.current_tab).unwrap())
-                .push(tab_row)
-                .into(),
-            Position::Top => Column::new()
-                .push(tab_row)
-                .push(self.tab_views.into_iter().nth(self.current_tab).unwrap())
-                .into(),
+            Position::Bottom => Column::new().push(content).push(tab_row).into(),
+            Position::Top => Column::new().push(tab_row).push(content).into(),
         }
     }
 }

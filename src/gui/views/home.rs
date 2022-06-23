@@ -6,11 +6,10 @@ use crate::{
     },
 };
 use iced::{
-    pure::widget::{Button, Column, Container, Row, Text},
-    Command, Length, Padding, Rule, Subscription,
+    pure::widget::Text,
+    Command, Subscription,
 };
 
-//TODO: custom sidebar
 pub struct HomeView {
     ipfs_client: IpfsRef,
     pub current_tab: usize,
@@ -38,15 +37,13 @@ impl HomeView {
         //file and folders can be potentially be represented as buttons with come content
 
         let content = Text::new("Hello, World")
-                    .width(Length::Fill)
-                    .height(Length::Fill)
                     .horizontal_alignment(iced::alignment::Horizontal::Center)
                     .vertical_alignment(iced::alignment::Vertical::Center);
 
-        let tabbar = TabBar::new(self.current_tab, Position::Bottom)
+        TabBar::new(self.current_tab, Position::Bottom)
             .push("Tab 1".to_string(), content.into())
-            .push("Tab 2".to_string(), Text::new("2").width(Length::Fill).height(Length::Fill).into())
-            .push("Tab 3".to_string(), Text::new("3").width(Length::Fill).height(Length::Fill).into());
-        tabbar.view()
+            .push("Tab 2".to_string(), Text::new("2").into())
+            .push("Tab 3".to_string(), Text::new("3").into())
+            .view()
     }
 }
