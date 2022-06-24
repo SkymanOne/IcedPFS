@@ -1,5 +1,6 @@
-use super::views::{self, tab::TabMessage};
-use crate::ipfs_client::models::BandwidthStats;
+use crate::ipfs_client::models::{BandwidthStats, FileEntry, FilesList};
+
+use super::views;
 
 #[derive(Debug, Clone)]
 pub enum Message {
@@ -9,12 +10,17 @@ pub enum Message {
     BwStatsReceived(BandwidthStats),
     Tick,
     TabSelected(usize),
-    Tabs(TabMessage)
+    Files(Files)
+}
+
+#[derive(Debug, Clone)]
+pub enum Files {
+    ListReceived(FilesList),
+    FileClicked(FileEntry),
+    FailedToFetch
 }
 
 #[derive(Debug, Clone)]
 pub enum Route {
     GoTo(views::Views),
-    _Next,
-    _Back,
 }

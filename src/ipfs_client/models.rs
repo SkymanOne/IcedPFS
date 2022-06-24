@@ -21,7 +21,7 @@ impl ToString for BandwidthStats {
 #[derive(Deserialize, Debug, Clone, Default)]
 #[serde(rename_all = "PascalCase")]
 pub struct FilesList {
-    pub entries: Vec<FileEntry>
+    pub entries: Vec<FileEntry>,
 }
 
 #[derive(Deserialize, Debug, Clone, Default)]
@@ -31,5 +31,5 @@ pub struct FileEntry {
     pub name: String,
     pub size: i64,
     #[serde(rename = "Type")]
-    pub file_type: isize
-} 
+    pub file_type: isize,
+}

@@ -2,22 +2,13 @@ use crate::{
     gui::IpfsRef,
     gui::{
         messages::Message,
-        widgets::tab_bar::{TabBar, Position},
+        widgets::tab_bar::{Position, TabBar},
     },
 };
 
-use iced::{
-    pure::widget::Text,
-    Command, Subscription,
-};
+use iced::{pure::widget::Text, Command, Subscription};
 
-use super::home::{HomeMessage, HomeTab};
-
-
-#[derive(Debug, Clone)]
-pub enum TabMessage {
-    Home(HomeMessage)
-}
+use super::home::HomeTab;
 
 pub struct TabsView {
     main_view: HomeTab,
@@ -30,15 +21,13 @@ impl TabsView {
         let main = HomeTab::new(ipfs_client);
         let view = TabsView {
             current_tab,
-            main_view: main.0
+            main_view: main.0,
         };
         (view, Command::batch([main.1]))
     }
 
-    pub fn update(&mut self, event: TabMessage) -> iced::Command<Message> {
-        match event {
-            TabMessage::Home(msg) => self.main_view.update(msg)
-        }
+    pub fn update(&mut self, event: Message) -> iced::Command<Message> {
+        self.main_view.update(event)
     }
 
     pub fn subscription(&self) -> iced::Subscription<Message> {
@@ -48,9 +37,12 @@ impl TabsView {
     pub fn view(&self) -> iced::pure::Element<Message> {
         //file and folders can be potentially be represented as buttons with come content
         TabBar::new(self.current_tab, Position::Bottom)
-            .push("Home".to_string(), self.main_view.view().map(|msg| Message::Tabs(TabMessage::Home(msg))))
+            .push("Home".to_string(), self.main_view.view())
             .push("Upload".to_string(), Text::new("Upload").into())
-            .push("Network Stats".to_string(), Text::new("Network stats").into())
+            .push(
+                "Network Stats".to_string(),
+                Text::new("Network stats").into(),
+            )
             .push("Settings".to_string(), Text::new("Settings").into())
             .view()
     }

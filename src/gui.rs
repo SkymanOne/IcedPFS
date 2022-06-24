@@ -64,7 +64,6 @@ impl Application for IcedPFS {
                     self.view = view;
                     iced::Command::none()
                 }
-                _ => iced::Command::none(),
             },
             messages::Message::ConnectionAttempt(success) => {
                 if success {
@@ -95,7 +94,7 @@ impl Application for IcedPFS {
                 self.tabs_view.current_tab = i;
                 Command::none()
             }
-            Message::Tabs(msg) => self.tabs_view.update(msg),
+            _ => self.tabs_view.update(event),
         }
     }
 
