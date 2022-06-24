@@ -45,11 +45,11 @@ impl Application for IcedPFS {
             IcedPFS {
                 view: Views::WelcomeView,
                 welcome_view,
-                tabs_view,
+                tabs_view: tabs_view.0,
                 ipfs_client: client,
                 connection: ConnectionState::Disconnected,
             },
-            connection_attempt(),
+            Command::batch([connection_attempt(), tabs_view.1]),
         )
     }
 
@@ -94,8 +94,8 @@ impl Application for IcedPFS {
             Message::TabSelected(i) => {
                 self.tabs_view.current_tab = i;
                 Command::none()
-            },
-            Message::Tabs(msg) => self.tabs_view.update(msg)
+            }
+            Message::Tabs(msg) => self.tabs_view.update(msg),
         }
     }
 

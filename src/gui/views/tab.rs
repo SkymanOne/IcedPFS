@@ -11,12 +11,12 @@ use iced::{
     Command, Subscription,
 };
 
-use super::home::{MainMessage, HomeTab};
+use super::home::{HomeMessage, HomeTab};
 
 
 #[derive(Debug, Clone)]
 pub enum TabMessage {
-    Home(MainMessage)
+    Home(HomeMessage)
 }
 
 pub struct TabsView {
@@ -25,13 +25,14 @@ pub struct TabsView {
 }
 
 impl TabsView {
-    pub fn new(ipfs_client: IpfsRef) -> Self {
+    pub fn new(ipfs_client: IpfsRef) -> (Self, Command<Message>) {
         let current_tab = 0;
         let main = HomeTab::new(ipfs_client);
-        TabsView {
+        let view = TabsView {
             current_tab,
-            main_view: main
-        }
+            main_view: main.0
+        };
+        (view, Command::batch([main.1]))
     }
 
     pub fn update(&mut self, event: TabMessage) -> iced::Command<Message> {
@@ -47,7 +48,7 @@ impl TabsView {
     pub fn view(&self) -> iced::pure::Element<Message> {
         //file and folders can be potentially be represented as buttons with come content
         TabBar::new(self.current_tab, Position::Bottom)
-            .push("Home".to_string(), self.main_view.view())
+            .push("Home".to_string(), self.main_view.view().map(|msg| Message::Tabs(TabMessage::Home(msg))))
             .push("Upload".to_string(), Text::new("Upload").into())
             .push("Network Stats".to_string(), Text::new("Network stats").into())
             .push("Settings".to_string(), Text::new("Settings").into())

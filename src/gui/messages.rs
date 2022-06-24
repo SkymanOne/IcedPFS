@@ -1,4 +1,4 @@
-use super::views::{self, home::MainMessage, tab::TabMessage};
+use super::views::{self, tab::TabMessage};
 use crate::ipfs_client::models::BandwidthStats;
 
 #[derive(Debug, Clone)]
