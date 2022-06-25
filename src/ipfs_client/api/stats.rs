@@ -18,6 +18,7 @@ impl<'a> ApiRoute<BandwidthStats> for BandwidthStatsRequest<'a> {
     }
 }
 
+#[allow(dead_code)]
 impl<'a> BandwidthStatsRequest<'a> {
     pub fn new() -> Self {
         Self {

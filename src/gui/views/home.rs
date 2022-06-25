@@ -1,10 +1,11 @@
 use crate::gui::messages::Files;
+use crate::gui::widgets::tab_bar::Tab;
 use crate::ipfs_client::api::files::ListDirsRequest;
 use crate::ipfs_client::models::{FileEntry, FilesList};
 use crate::{gui::messages::Message, gui::IpfsRef};
 
 use iced::pure::widget::{Button, Column, Container, Text};
-use iced::{Command, Length};
+use iced::{Command, Length, Subscription};
 
 pub struct HomeTab {
     ipfs_client: IpfsRef,
@@ -22,21 +23,41 @@ impl HomeTab {
         let cmd = request_files_list(page.ipfs_client.clone());
         (page, cmd)
     }
+}
 
-    pub fn update(&mut self, event: Message) -> Command<Message> {
+fn request_files_list(client: IpfsRef) -> Command<Message> {
+    let route = ListDirsRequest::new();
+    let request = client.make_request(route);
+    Command::perform(request, |result| match result {
+        Ok(data) => Message::Files(Files::ListReceived(data)),
+        Err(_) => Message::Files(Files::FailedToFetch),
+    })
+}
+
+impl<'a> Tab<'a, Message> for HomeTab {
+    fn title(&self) -> String {
+        "Home".to_string()
+    }
+
+    fn subscription(&self) -> Subscription<Message> {
+        Subscription::none()
+    }
+
+    fn update(&mut self, event: Message) -> Command<Message> {
+        println!("Received message");
         match event {
             Message::Files(Files::ListReceived(files)) => self.files = Some(files),
             Message::Files(Files::FileClicked(file)) => self.selected_file = Some(file),
             Message::Files(Files::FailedToFetch) => {
                 println!("Failed to fetch files");
-                return request_files_list(self.ipfs_client.clone())
+                return request_files_list(self.ipfs_client.clone());
             }
             _ => {}
         }
         Command::none()
     }
 
-    pub fn view(&self) -> iced::pure::Element<Message> {
+    fn view(&self) -> iced::pure::Element<'a, Message> {
         let files: Container<Message> = match &self.files {
             Some(files) => {
                 let mut col: Column<Message> = Column::new();
@@ -58,13 +79,4 @@ impl HomeTab {
             .height(Length::Fill)
             .into()
     }
-}
-
-fn request_files_list(client: IpfsRef) -> Command<Message> {
-    let route = ListDirsRequest::new();
-    let request = client.make_request(route);
-    Command::perform(request, |result| match result {
-        Ok(data) => Message::Files(Files::ListReceived(data)),
-        Err(_) => Message::Files(Files::FailedToFetch),
-    })
 }

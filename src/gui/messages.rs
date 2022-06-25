@@ -10,14 +10,14 @@ pub enum Message {
     BwStatsReceived(BandwidthStats),
     Tick,
     TabSelected(usize),
-    Files(Files)
+    Files(Files),
 }
 
 #[derive(Debug, Clone)]
 pub enum Files {
     ListReceived(FilesList),
     FileClicked(FileEntry),
-    FailedToFetch
+    FailedToFetch,
 }
 
 #[derive(Debug, Clone)]

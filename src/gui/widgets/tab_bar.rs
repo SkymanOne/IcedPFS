@@ -3,7 +3,7 @@ use std::fmt::Debug;
 use iced::{
     pure::widget::{Button, Column, Container, Text},
     pure::{widget::Row, Element},
-    Length,
+    Command, Length, Subscription,
 };
 
 use crate::gui::messages::Message;
@@ -14,19 +14,23 @@ pub enum Position {
     Bottom,
 }
 
-pub trait Tab<Message>
+pub trait Tab<'a, Message>
 where
     Message: Debug + Clone,
 {
     fn title(&self) -> String;
-    fn view(&self) -> Element<'_, Message>;
+    fn subscription(&self) -> Subscription<Message>;
+    fn view(&self) -> Element<'a, Message>;
+    fn update(&mut self, event: Message) -> Command<Message>;
 }
 
-pub struct TabBar<'a, Message> {
+pub struct TabBar<'a, Message>
+where
+    Message: Debug + Clone,
+{
     //needed later for styling selected tab
     current_tab: usize,
-    tabs: Vec<String>,
-    tab_views: Vec<Element<'a, Message>>,
+    tabs: Vec<Box<dyn Tab<'a, Message>>>,
     position: Position,
 }
 
@@ -35,18 +39,30 @@ impl<'a> TabBar<'a, Message> {
         TabBar {
             current_tab,
             tabs: vec![],
-            tab_views: vec![],
             position,
         }
     }
 
-    pub fn push(mut self, label: String, content: Element<'a, Message>) -> Self {
-        self.tabs.push(label);
-        self.tab_views.push(content);
+    pub fn push(mut self, tab: impl Tab<'a, Message> + 'static) -> Self {
+        self.tabs.push(Box::new(tab));
         self
     }
 
-    pub fn view(self) -> iced::pure::Element<'a, Message> {
+    pub fn subscription(&self) -> Subscription<Message> {
+        self.tabs.get(self.current_tab).unwrap().subscription()
+    }
+
+    pub fn update(&mut self, event: Message) -> Command<Message> {
+        match event {
+            Message::TabSelected(i) => {
+                self.current_tab = i;
+                Command::none()
+            },
+            _ => self.tabs.get_mut(self.current_tab).unwrap().update(event),
+        }
+    }
+
+    pub fn view(&self) -> iced::pure::Element<'a, Message> {
         let mut tab_row = Row::new()
             .align_items(iced::Alignment::Fill)
             .height(Length::Shrink)
@@ -54,7 +70,7 @@ impl<'a> TabBar<'a, Message> {
         for i in 0..self.tabs.len() {
             tab_row = tab_row.push(
                 Button::new(
-                    Text::new(&self.tabs[i])
+                    Text::new(&self.tabs.get(i).unwrap().title())
                         .width(Length::Fill)
                         .height(Length::Fill)
                         .horizontal_alignment(iced::alignment::Horizontal::Center)
@@ -65,7 +81,7 @@ impl<'a> TabBar<'a, Message> {
                 .width(Length::Fill),
             );
         }
-        let content = Container::new(self.tab_views.into_iter().nth(self.current_tab).unwrap())
+        let content = Container::new(self.tabs.get(self.current_tab).unwrap().view())
             .width(Length::Fill)
             .height(Length::Fill);
         match self.position {

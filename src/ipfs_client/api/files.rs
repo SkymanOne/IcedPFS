@@ -1,4 +1,4 @@
-use crate::ipfs_client::models::{FileEntry, FilesList};
+use crate::ipfs_client::models::FilesList;
 use serde::Serialize;
 
 use super::ApiRoute;
@@ -21,6 +21,7 @@ impl<'a> ApiRoute<FilesList> for ListDirsRequest<'a> {
     }
 }
 
+#[allow(dead_code)]
 impl<'a> ListDirsRequest<'a> {
     pub fn new() -> Self {
         Self {

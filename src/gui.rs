@@ -18,10 +18,10 @@ mod widgets;
 
 pub type IpfsRef = ipfs_client::Client;
 
-pub struct IcedPFS {
+pub struct IcedPFS<'a> {
     view: Views,
     welcome_view: WelcomeView,
-    tabs_view: TabsView,
+    tabs_view: TabsView<'a>,
     ipfs_client: IpfsRef,
     connection: ConnectionState,
 }
@@ -32,7 +32,7 @@ enum ConnectionState {
     Connected,
 }
 
-impl Application for IcedPFS {
+impl<'a> Application for IcedPFS<'a> {
     type Executor = iced::executor::Default;
     type Message = messages::Message;
     type Flags = ();
@@ -90,10 +90,6 @@ impl Application for IcedPFS {
                 connection_attempt()
             }
             Message::BwStatsReceived(_) => self.welcome_view.update(event),
-            Message::TabSelected(i) => {
-                self.tabs_view.current_tab = i;
-                Command::none()
-            }
             _ => self.tabs_view.update(event),
         }
     }

@@ -1,5 +1,6 @@
 use super::*;
 
+#[allow(dead_code)]
 impl Client {
     pub fn join_network() -> Result<(), ClientError> {
         use std::io::BufReader;

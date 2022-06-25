@@ -6,44 +6,36 @@ use crate::{
     },
 };
 
-use iced::{pure::widget::Text, Command, Subscription};
+use iced::Command;
 
-use super::home::HomeTab;
+use super::{home::HomeTab, upload::UploadTab};
 
-pub struct TabsView {
-    main_view: HomeTab,
-    pub current_tab: usize,
+pub struct TabsView<'a> {
+    tab_bar: TabBar<'a, Message>,
 }
 
-impl TabsView {
+impl<'a> TabsView<'a> {
     pub fn new(ipfs_client: IpfsRef) -> (Self, Command<Message>) {
-        let current_tab = 0;
         let main = HomeTab::new(ipfs_client);
+        let upload = UploadTab::new();
+        let tab_bar =         TabBar::new(0, Position::Bottom)
+            .push(main.0)
+            .push(upload);
         let view = TabsView {
-            current_tab,
-            main_view: main.0,
+            tab_bar
         };
         (view, Command::batch([main.1]))
     }
 
     pub fn update(&mut self, event: Message) -> iced::Command<Message> {
-        self.main_view.update(event)
+        self.tab_bar.update(event)
     }
 
     pub fn subscription(&self) -> iced::Subscription<Message> {
-        Subscription::none()
+        self.tab_bar.subscription()
     }
 
     pub fn view(&self) -> iced::pure::Element<Message> {
-        //file and folders can be potentially be represented as buttons with come content
-        TabBar::new(self.current_tab, Position::Bottom)
-            .push("Home".to_string(), self.main_view.view())
-            .push("Upload".to_string(), Text::new("Upload").into())
-            .push(
-                "Network Stats".to_string(),
-                Text::new("Network stats").into(),
-            )
-            .push("Settings".to_string(), Text::new("Settings").into())
-            .view()
+        self.tab_bar.view()
     }
 }
