@@ -8,7 +8,7 @@ use crate::{
 
 use iced::Command;
 
-use super::{home::HomeTab, upload::UploadTab};
+use super::{home::HomeTab, settings::SettingsTab, stats::StatsTab, upload::UploadTab};
 
 pub struct TabsView<'a> {
     tab_bar: TabBar<'a, Message>,
@@ -18,12 +18,14 @@ impl<'a> TabsView<'a> {
     pub fn new(ipfs_client: IpfsRef) -> (Self, Command<Message>) {
         let main = HomeTab::new(ipfs_client);
         let upload = UploadTab::new();
-        let tab_bar =         TabBar::new(0, Position::Bottom)
+        let stats = StatsTab::new();
+        let settings = SettingsTab::new();
+        let tab_bar = TabBar::new(0, Position::Bottom)
             .push(main.0)
-            .push(upload);
-        let view = TabsView {
-            tab_bar
-        };
+            .push(upload)
+            .push(stats)
+            .push(settings);
+        let view = TabsView { tab_bar };
         (view, Command::batch([main.1]))
     }
 

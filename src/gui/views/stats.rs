@@ -1,19 +1,18 @@
-use iced::pure::widget::Text;
-use iced::{Command, Subscription};
+use iced::{Command, Subscription, Text};
 
 use crate::gui::{messages::Message, widgets::tab_bar::Tab};
 
-pub struct UploadTab {}
+pub struct StatsTab {}
 
-impl UploadTab {
+impl StatsTab {
     pub fn new() -> Self {
-        UploadTab {}
+        StatsTab {}
     }
 }
 
-impl<'a> Tab<'a, Message> for UploadTab {
+impl<'a> Tab<'a, Message> for StatsTab {
     fn title(&self) -> String {
-        "Upload".to_string()
+        "Stats".to_string()
     }
 
     fn subscription(&self) -> iced::Subscription<Message> {
@@ -26,6 +25,6 @@ impl<'a> Tab<'a, Message> for UploadTab {
     }
 
     fn view(&self) -> iced::pure::Element<'a, Message> {
-        Text::new("Upload tab").into()
+        Text::new("This is stats tab. Custom graphs will appear here later").into()
     }
 }

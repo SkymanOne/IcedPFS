@@ -57,7 +57,7 @@ impl<'a> TabBar<'a, Message> {
             Message::TabSelected(i) => {
                 self.current_tab = i;
                 Command::none()
-            },
+            }
             _ => self.tabs.get_mut(self.current_tab).unwrap().update(event),
         }
     }
