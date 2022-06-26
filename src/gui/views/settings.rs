@@ -24,7 +24,7 @@ impl<'a> Tab<'a, Message> for SettingsTab {
         Command::none()
     }
 
-    fn view(&self) -> iced::pure::Element<'a, Message> {
+    fn view(&self) -> iced::pure::Element<Message> {
         Text::new("This is settings tab").into()
     }
 }

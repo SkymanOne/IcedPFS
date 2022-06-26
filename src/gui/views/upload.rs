@@ -25,7 +25,7 @@ impl<'a> Tab<'a, Message> for UploadTab {
         Command::none()
     }
 
-    fn view(&self) -> iced::pure::Element<'a, Message> {
+    fn view(&self) -> iced::pure::Element<Message> {
         Text::new("Upload tab").into()
     }
 }

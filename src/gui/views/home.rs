@@ -4,7 +4,7 @@ use crate::ipfs_client::api::files::ListDirsRequest;
 use crate::ipfs_client::models::{FileEntry, FilesList};
 use crate::{gui::messages::Message, gui::IpfsRef};
 
-use iced::pure::widget::{Button, Column, Container, Text};
+use iced::pure::widget::{Button, Column, Container, Row, Text};
 use iced::{Command, Length, Subscription};
 
 pub struct HomeTab {
@@ -57,26 +57,49 @@ impl<'a> Tab<'a, Message> for HomeTab {
         Command::none()
     }
 
-    fn view(&self) -> iced::pure::Element<'a, Message> {
+    fn view(&self) -> iced::pure::Element<Message> {
         let files: Container<Message> = match &self.files {
-            Some(files) => {
-                let mut col: Column<Message> = Column::new();
-                let files_iter = files.entries.iter();
-                for entry in files_iter {
-                    col = col
-                        .push(Button::new(Text::new(&entry.name)).on_press(Message::Files(
-                            Files::FileClicked(entry.to_owned().clone()),
-                        )));
-                }
-                Container::new(col.align_items(iced::Alignment::Center).spacing(5))
-            }
+            Some(files) => Container::new(display_files_grid(files)),
             None => Container::new(Text::new("No files have been found!")),
         };
         Container::new(files)
-            .center_x()
-            .center_y()
+            .padding(20)
             .width(Length::Fill)
             .height(Length::Fill)
             .into()
     }
+}
+
+fn display_files_grid(list: &FilesList) -> Column<Message> {
+    let mut col = Column::new();
+    let entries = &list.entries;
+    let mut row: Row<Message> = Row::new();
+    for (i, file) in entries.iter().enumerate() {
+        row = row
+            .push(
+                Button::new(
+                    Text::new(&file.name)
+                        .width(Length::Fill)
+                        .width(Length::Fill)
+                        .vertical_alignment(iced::alignment::Vertical::Center)
+                        .horizontal_alignment(iced::alignment::Horizontal::Center),
+                )
+                .on_press(Message::Files(Files::FileClicked(file.to_owned().clone())))
+                .height(Length::Units(40))
+                .width(Length::Shrink),
+            )
+            .width(Length::Fill)
+            .height(Length::Fill)
+            .spacing(10)
+            .padding(10);
+        if i > 0 && i % 7 == 0 {
+            col = col.push(row);
+            row = Row::new();
+        }
+    }
+    col = col.push(row);
+    col.spacing(5)
+        .align_items(iced::Alignment::Start)
+        .height(Length::Fill)
+        .height(Length::Fill)
 }

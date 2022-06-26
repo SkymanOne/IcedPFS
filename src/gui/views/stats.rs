@@ -24,7 +24,7 @@ impl<'a> Tab<'a, Message> for StatsTab {
         Command::none()
     }
 
-    fn view(&self) -> iced::pure::Element<'a, Message> {
+    fn view(&self) -> iced::pure::Element<Message> {
         Text::new("This is stats tab. Custom graphs will appear here later").into()
     }
 }

@@ -20,7 +20,7 @@ where
 {
     fn title(&self) -> String;
     fn subscription(&self) -> Subscription<Message>;
-    fn view(&self) -> Element<'a, Message>;
+    fn view(&self) -> Element<Message>;
     fn update(&mut self, event: Message) -> Command<Message>;
 }
 
@@ -62,7 +62,7 @@ impl<'a> TabBar<'a, Message> {
         }
     }
 
-    pub fn view(&self) -> iced::pure::Element<'a, Message> {
+    pub fn view(&self) -> iced::pure::Element<Message> {
         let mut tab_row = Row::new()
             .align_items(iced::Alignment::Fill)
             .height(Length::Shrink)
