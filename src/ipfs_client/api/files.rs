@@ -9,6 +9,7 @@ pub struct ListDirsRequest<'a> {
     path: Option<&'a str>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
+    #[serde(rename = "long")]
     use_long: Option<bool>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -36,7 +37,7 @@ impl<'a> ListDirsRequest<'a> {
         self
     }
 
-    pub fn use_long(mut self) -> Self {
+    pub fn long_listed(mut self) -> Self {
         self.use_long = Some(true);
         self
     }

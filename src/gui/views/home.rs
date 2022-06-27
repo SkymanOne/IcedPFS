@@ -2,9 +2,11 @@ use crate::gui::messages::Files;
 use crate::gui::widgets::tab_bar::Tab;
 use crate::ipfs_client::api::files::ListDirsRequest;
 use crate::ipfs_client::models::{FileEntry, FilesList};
+use crate::utils::shorten_file_size;
 use crate::{gui::messages::Message, gui::IpfsRef};
 
 use iced::pure::widget::{Button, Column, Container, Row, Text};
+use iced::pure::Element;
 use iced::{Command, Length, Subscription};
 
 pub struct HomeTab {
@@ -26,7 +28,7 @@ impl HomeTab {
 }
 
 fn request_files_list(client: IpfsRef) -> Command<Message> {
-    let route = ListDirsRequest::new();
+    let route = ListDirsRequest::new().long_listed();
     let request = client.make_request(route);
     Command::perform(request, |result| match result {
         Ok(data) => Message::Files(Files::ListReceived(data)),
@@ -44,7 +46,6 @@ impl<'a> Tab<'a, Message> for HomeTab {
     }
 
     fn update(&mut self, event: Message) -> Command<Message> {
-        println!("Received message");
         match event {
             Message::Files(Files::ListReceived(files)) => self.files = Some(files),
             Message::Files(Files::FileClicked(file)) => self.selected_file = Some(file),
@@ -52,12 +53,16 @@ impl<'a> Tab<'a, Message> for HomeTab {
                 println!("Failed to fetch files");
                 return request_files_list(self.ipfs_client.clone());
             }
+            Message::Files(Files::CloseFile) => self.selected_file = None,
             _ => {}
         }
         Command::none()
     }
 
-    fn view(&self) -> iced::pure::Element<Message> {
+    fn view(&self) -> Element<Message> {
+        if let Some(file) = &self.selected_file {
+            return display_file(file)
+        }
         let files: Container<Message> = match &self.files {
             Some(files) => Container::new(display_files_grid(files)),
             None => Container::new(Text::new("No files have been found!")),
@@ -102,4 +107,22 @@ fn display_files_grid(list: &FilesList) -> Column<Message> {
         .align_items(iced::Alignment::Start)
         .height(Length::Fill)
         .height(Length::Fill)
+}
+
+fn display_file(file: &FileEntry) -> Element<Message> {
+    let size = shorten_file_size(file.size);
+    let col = Column::new()
+        .push(Text::new(format!("name: {}", file.name)))
+        .push(Text::new(format!("size: {:.2}{}", size.0, size.1)))
+        .push(Text::new(format!("hash: {}", file.hash)))
+        .push(Button::new(Text::new("Close file")).on_press(Message::Files(Files::CloseFile)))
+        .align_items(iced::Alignment::Center)
+        .spacing(10);
+    Container::new(col)
+        .center_x()
+        .center_y()
+        .padding(10)
+        .width(Length::Fill)
+        .height(Length::Fill)
+        .into()
 }

@@ -2,6 +2,7 @@ use iced::{pure::Application, Settings};
 
 mod gui;
 mod ipfs_client;
+mod utils;
 
 use gui::IcedPFS;
 

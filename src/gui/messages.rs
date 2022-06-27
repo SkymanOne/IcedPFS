@@ -18,6 +18,7 @@ pub enum Files {
     ListReceived(FilesList),
     FileClicked(FileEntry),
     FailedToFetch,
+    CloseFile
 }
 
 #[derive(Debug, Clone)]
