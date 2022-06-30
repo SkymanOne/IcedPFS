@@ -2,7 +2,7 @@ use crate::{
     gui::IpfsRef,
     gui::{
         messages::Message,
-        widgets::tab_bar::{Position, TabBar},
+        widgets::tab_bar::{Position, TabBar}, Context,
     },
 };
 
@@ -29,15 +29,15 @@ impl<'a> TabsView<'a> {
         (view, Command::batch([main.1]))
     }
 
-    pub fn update(&mut self, event: Message) -> iced::Command<Message> {
-        self.tab_bar.update(event)
+    pub fn update(&mut self, event: Message, ctx: &Context) -> Command<Message> {
+        self.tab_bar.update(event, ctx)
     }
 
-    pub fn subscription(&self) -> iced::Subscription<Message> {
-        self.tab_bar.subscription()
+    pub fn subscription(&self, ctx: &Context) -> iced::Subscription<Message> {
+        self.tab_bar.subscription(ctx)
     }
 
-    pub fn view(&self) -> iced::pure::Element<Message> {
-        self.tab_bar.view()
+    pub fn view(&self, ctx: &Context) -> iced::pure::Element<Message> {
+        self.tab_bar.view(ctx)
     }
 }

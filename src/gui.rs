@@ -18,36 +18,47 @@ mod widgets;
 
 pub type IpfsRef = ipfs_client::Client;
 
+/// Global context of an application.
+/// It can only be mutated by the main `Application`
+#[derive(Debug, Clone)]
+pub struct Context {
+    is_connected: bool
+}
+
+impl Context {
+    pub fn new() -> Self {
+        Context { is_connected: false }
+    }
+
+    pub fn is_connected(&self) -> bool {
+        self.is_connected
+    }
+}
+
 pub struct IcedPFS<'a> {
     view: Views,
     welcome_view: WelcomeView,
     tabs_view: TabsView<'a>,
     ipfs_client: IpfsRef,
-    connection: ConnectionState,
-}
-
-#[derive(Debug, Clone)]
-enum ConnectionState {
-    Disconnected,
-    Connected,
+    context: Context,
 }
 
 impl<'a> Application for IcedPFS<'a> {
     type Executor = iced::executor::Default;
-    type Message = messages::Message;
+    type Message = Message;
     type Flags = ();
 
-    fn new(_: Self::Flags) -> (Self, iced::Command<Self::Message>) {
+    fn new(_: Self::Flags) -> (Self, Command<Self::Message>) {
         let client = ipfs_client::Client::default();
-        let welcome_view = views::welcome::WelcomeView::new(client.clone());
-        let tabs_view = views::tab::TabsView::new(client.clone());
+        let welcome_view = WelcomeView::new(client.clone());
+        let tabs_view = TabsView::new(client.clone());
         (
             IcedPFS {
                 view: Views::WelcomeView,
                 welcome_view,
                 tabs_view: tabs_view.0,
                 ipfs_client: client,
-                connection: ConnectionState::Disconnected,
+                context: Context::new(),
             },
             Command::batch([connection_attempt(), tabs_view.1]),
         )
@@ -57,17 +68,17 @@ impl<'a> Application for IcedPFS<'a> {
         <&str>::into("IcedPFS")
     }
 
-    fn update(&mut self, event: Self::Message) -> iced::Command<Self::Message> {
+    fn update(&mut self, event: Self::Message) -> Command<Self::Message> {
         match event {
-            messages::Message::Route(route_action) => match route_action {
+            Message::Route(route_action) => match route_action {
                 Route::GoTo(view) => {
                     self.view = view;
-                    iced::Command::none()
+                    Command::none()
                 }
             },
-            messages::Message::ConnectionAttempt(success) => {
+            Message::ConnectionAttempt(success) => {
                 if success {
-                    self.connection = ConnectionState::Connected;
+                    self.context.is_connected = true;
                     self.welcome_view.update(event);
                     Command::none()
                 } else {
@@ -90,16 +101,16 @@ impl<'a> Application for IcedPFS<'a> {
                 connection_attempt()
             }
             Message::BwStatsReceived(_) => self.welcome_view.update(event),
-            _ => self.tabs_view.update(event),
+            _ => self.tabs_view.update(event, &self.context),
         }
     }
 
-    fn subscription(&self) -> iced::Subscription<Self::Message> {
+    fn subscription(&self) -> Subscription<Self::Message> {
         let tick_service = iced::time::every(Duration::from_secs(1)).map(|_| Message::Tick);
         let mut services = vec![tick_service];
         match self.view {
             Views::WelcomeView => services.push(self.welcome_view.subscription()),
-            Views::TabsView => services.push(self.tabs_view.subscription()),
+            Views::TabsView => services.push(self.tabs_view.subscription(&self.context)),
         }
 
         Subscription::batch(services.into_iter())
@@ -107,14 +118,14 @@ impl<'a> Application for IcedPFS<'a> {
 
     fn view(&self) -> iced::pure::Element<Self::Message> {
         match self.view {
-            Views::WelcomeView => self.welcome_view.view(),
-            Views::TabsView => self.tabs_view.view(),
+            Views::WelcomeView => self.welcome_view.view(&self.context),
+            Views::TabsView => self.tabs_view.view(&self.context),
         }
     }
 }
 
 fn connection_attempt() -> Command<Message> {
-    iced::Command::perform(
+    Command::perform(
         async move { ipfs_client::Client::join_network().is_ok() },
         Message::ConnectionAttempt,
     )

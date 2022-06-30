@@ -1,8 +1,9 @@
+use crate::gui::Context;
 use crate::gui::messages::Files;
 use crate::gui::widgets::tab_bar::Tab;
 use crate::ipfs_client::api::files::ListDirsRequest;
 use crate::ipfs_client::models::{FileEntry, FilesList};
-use crate::utils::shorten_file_size;
+use crate::utils;
 use crate::{gui::messages::Message, gui::IpfsRef};
 
 use iced::pure::widget::{Button, Column, Container, Row, Text};
@@ -41,16 +42,18 @@ impl<'a> Tab<'a, Message> for HomeTab {
         "Home".to_string()
     }
 
-    fn subscription(&self) -> Subscription<Message> {
+    fn subscription(&self, _: &Context) -> Subscription<Message> {
         Subscription::none()
     }
 
-    fn update(&mut self, event: Message) -> Command<Message> {
+    fn update(&mut self, event: Message, ctx: &Context) -> Command<Message> {
         match event {
             Message::Files(Files::ListReceived(files)) => self.files = Some(files),
             Message::Files(Files::FileClicked(file)) => self.selected_file = Some(file),
             Message::Files(Files::FailedToFetch) => {
-                println!("Failed to fetch files");
+                if ctx.is_connected {
+                    println!("Failed to fetch files");
+                }
                 return request_files_list(self.ipfs_client.clone());
             }
             Message::Files(Files::CloseFile) => self.selected_file = None,
@@ -59,7 +62,7 @@ impl<'a> Tab<'a, Message> for HomeTab {
         Command::none()
     }
 
-    fn view(&self) -> Element<Message> {
+    fn view(&self, _: &Context) -> Element<Message> {
         if let Some(file) = &self.selected_file {
             return display_file(file)
         }
@@ -110,10 +113,10 @@ fn display_files_grid(list: &FilesList) -> Column<Message> {
 }
 
 fn display_file(file: &FileEntry) -> Element<Message> {
-    let size = shorten_file_size(file.size);
+    let size = utils::shorten_file_size(file.size);
     let col = Column::new()
         .push(Text::new(format!("name: {}", file.name)))
-        .push(Text::new(format!("size: {:.2}{}", size.0, size.1)))
+        .push(Text::new(format!("size: {:.1}{}", size.0, size.1)))
         .push(Text::new(format!("hash: {}", file.hash)))
         .push(Button::new(Text::new("Close file")).on_press(Message::Files(Files::CloseFile)))
         .align_items(iced::Alignment::Center)

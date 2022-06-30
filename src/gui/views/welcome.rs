@@ -1,6 +1,6 @@
 use crate::{
     gui::messages::{Message, Route},
-    gui::views::Views,
+    gui::{views::Views, Context},
     gui::IpfsRef,
     ipfs_client::models::BandwidthStats,
 };
@@ -54,9 +54,9 @@ impl WelcomeView {
         iced::Subscription::none()
     }
 
-    pub fn view(&self) -> iced::pure::Element<Message> {
+    pub fn view(&self, ctx: &Context) -> iced::pure::Element<Message> {
         let msg = Message::Route(Route::GoTo(Views::TabsView));
-        let btn = Button::new("next Screen").on_press(msg);
+        let btn = Button::new("Proceed").on_press(msg);
 
         let stats = Text::new(self.stats.to_string());
 
@@ -67,13 +67,16 @@ impl WelcomeView {
             |column, el| column.push(Text::new(el)),
         );
 
-        let main_col = Column::new()
+        let mut main_col = Column::new()
             .align_items(iced::Alignment::Center)
             .spacing(130)
             .push(Text::new("Welcome to IcedPFS"))
             .push(progress_col)
-            .push(stats)
-            .push(btn);
+            .push(stats);
+
+        if ctx.is_connected() {
+            main_col = main_col.push(btn);
+        }
 
         Container::new(main_col)
             .padding(10)

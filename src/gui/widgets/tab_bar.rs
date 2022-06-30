@@ -6,7 +6,7 @@ use iced::{
     Command, Length, Subscription,
 };
 
-use crate::gui::messages::Message;
+use crate::gui::{messages::Message, Context};
 
 #[allow(dead_code)]
 pub enum Position {
@@ -19,9 +19,9 @@ where
     Message: Debug + Clone,
 {
     fn title(&self) -> String;
-    fn subscription(&self) -> Subscription<Message>;
-    fn view(&self) -> Element<Message>;
-    fn update(&mut self, event: Message) -> Command<Message>;
+    fn subscription(&self, ctx: &Context) -> Subscription<Message>;
+    fn update(&mut self, event: Message, ctx: &Context) -> Command<Message>;
+    fn view(&self, ctx: &Context) -> Element<Message>;
 }
 
 pub struct TabBar<'a, Message>
@@ -48,21 +48,21 @@ impl<'a> TabBar<'a, Message> {
         self
     }
 
-    pub fn subscription(&self) -> Subscription<Message> {
-        self.tabs.get(self.current_tab).unwrap().subscription()
+    pub fn subscription(&self, ctx: &Context) -> Subscription<Message> {
+        self.tabs.get(self.current_tab).unwrap().subscription(ctx)
     }
 
-    pub fn update(&mut self, event: Message) -> Command<Message> {
+    pub fn update(&mut self, event: Message, ctx: &Context) -> Command<Message> {
         match event {
             Message::TabSelected(i) => {
                 self.current_tab = i;
                 Command::none()
             }
-            _ => self.tabs.get_mut(self.current_tab).unwrap().update(event),
+            _ => self.tabs.get_mut(self.current_tab).unwrap().update(event, ctx),
         }
     }
 
-    pub fn view(&self) -> iced::pure::Element<Message> {
+    pub fn view(&self, ctx: &Context) -> Element<Message> {
         let mut tab_row = Row::new()
             .align_items(iced::Alignment::Fill)
             .height(Length::Shrink)
@@ -81,7 +81,7 @@ impl<'a> TabBar<'a, Message> {
                 .width(Length::Fill),
             );
         }
-        let content = Container::new(self.tabs.get(self.current_tab).unwrap().view())
+        let content = Container::new(self.tabs.get(self.current_tab).unwrap().view(ctx))
             .width(Length::Fill)
             .height(Length::Fill);
         match self.position {
