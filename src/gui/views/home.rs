@@ -57,6 +57,7 @@ impl<'a> Tab<'a, Message> for HomeTab {
                 return request_files_list(self.ipfs_client.clone());
             }
             Message::Files(Files::CloseFile) => self.selected_file = None,
+            Message::Files(Files::FileUploaded) => return request_files_list(self.ipfs_client.clone()),
             _ => {}
         }
         Command::none()

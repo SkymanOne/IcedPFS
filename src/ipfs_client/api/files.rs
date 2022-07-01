@@ -47,3 +47,39 @@ impl<'a> ListDirsRequest<'a> {
         self
     }
 }
+
+#[derive(Clone, Debug, Serialize)]
+pub struct WriteRequest<'a> {
+    #[serde(rename = "arg")]
+    path: &'a str,
+
+    create: bool,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    sorted: Option<bool>,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    parents: Option<bool>,
+}
+
+impl<'a> ApiRoute<FilesList> for WriteRequest<'a> {
+    fn get_route(&self) -> &str {
+        "/files/write"
+    }
+}
+
+impl<'a> WriteRequest<'a> {
+    pub fn new(path: &'a str) -> Self {
+        WriteRequest {
+            path,
+            create: false,
+            sorted: None,
+            parents: None,
+        }
+    }
+
+    pub fn create(mut self) -> Self {
+        self.create = true;
+        self
+    }
+}

@@ -1,3 +1,5 @@
+use std::path::PathBuf;
+
 use crate::ipfs_client::models::{BandwidthStats, FileEntry, FilesList};
 
 use super::views;
@@ -18,6 +20,11 @@ pub enum Files {
     ListReceived(FilesList),
     FileClicked(FileEntry),
     FailedToFetch,
+    SelectFile,
+    FileSelected(Option<PathBuf>),
+    UploadClicked,
+    FileUploaded,
+    FilesUploadFailed,
     CloseFile
 }
 

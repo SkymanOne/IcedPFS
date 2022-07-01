@@ -16,8 +16,8 @@ pub struct TabsView<'a> {
 
 impl<'a> TabsView<'a> {
     pub fn new(ipfs_client: IpfsRef) -> (Self, Command<Message>) {
-        let main = HomeTab::new(ipfs_client);
-        let upload = UploadTab::new();
+        let main = HomeTab::new(ipfs_client.clone());
+        let upload = UploadTab::new(ipfs_client);
         let stats = StatsTab::new();
         let settings = SettingsTab::new();
         let tab_bar = TabBar::new(0, Position::Bottom)
