@@ -58,7 +58,18 @@ impl<'a> TabBar<'a, Message> {
                 self.current_tab = i;
                 Command::none()
             }
-            _ => self.tabs.get_mut(self.current_tab).unwrap().update(event, ctx),
+            Message::Files(_) => {
+                let mut cmds: Vec<Command<Message>> = vec![];
+                self.tabs.iter_mut().for_each(|tab| {
+                    cmds.push(tab.update(event.clone(), ctx));
+                });
+                Command::batch(cmds)
+            }
+            _ => self
+                .tabs
+                .get_mut(self.current_tab)
+                .unwrap()
+                .update(event, ctx),
         }
     }
 

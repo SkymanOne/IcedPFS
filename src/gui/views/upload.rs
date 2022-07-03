@@ -1,9 +1,8 @@
-use std::fs::File;
-use std::path::{self, PathBuf};
+use std::path::PathBuf;
 
 use iced::pure::widget::{Button, Column, Container, Text};
 use iced::{Command, Length, Subscription};
-use rfd::{FileDialog, AsyncFileDialog, FileHandle};
+use rfd::{AsyncFileDialog, FileHandle};
 
 use crate::gui::messages::Files;
 use crate::gui::{messages::Message, widgets::tab_bar::Tab};
@@ -46,7 +45,7 @@ impl<'a> Tab<'a, Message> for UploadTab {
                         }
                     }
                     Files::FileUploaded => self.path = None,
-                    Files::FilesUploadFailed => panic!("Files upload failed"),
+                    Files::UploadFailed => panic!("Files upload failed"),
                     _ => {}
                 }
             }
@@ -59,7 +58,10 @@ impl<'a> Tab<'a, Message> for UploadTab {
         col = col.push(Text::new("Upload file to IPFS: "));
         if ctx.is_connected() {
             if let Some(path) = self.path.clone() {
-                col = col.push(Text::new(format!("file: <{}>", path.as_path().to_str().unwrap())));
+                col = col.push(Text::new(format!(
+                    "file: <{}>",
+                    path.as_path().to_str().unwrap()
+                )));
                 col = col.push(
                     Button::new(Text::new("Upload")).on_press(Message::Files(Files::UploadClicked)),
                 );
@@ -84,20 +86,28 @@ impl<'a> Tab<'a, Message> for UploadTab {
 }
 
 fn upload_file(client: IpfsRef, path: PathBuf) -> Command<Message> {
-    let route = WriteRequest::new("/").create();
+    let filename = path.file_name().unwrap().to_str().unwrap_or("default");
+    let destination = format!("/{}", filename);
+    let route = WriteRequest::new(destination).create();
     let request = client.make_request_with_files(route, path);
     Command::perform(request, |result| match result {
         Ok(_) => Message::Files(Files::FileUploaded),
-        Err(_) => Message::Files(Files::FilesUploadFailed),
+        Err(err) => {
+            println!("{:?}", err);
+            Message::Files(Files::UploadFailed)
+        }
     })
 }
 
 fn select_file() -> Command<Message> {
-    Command::perform(AsyncFileDialog::new().pick_file(), |result: Option<FileHandle>| {
-        if let Some(handle) = result {
-            Message::Files(Files::FileSelected(Some(handle.path().to_owned())))
-        } else {
-            Message::Files(Files::FileSelected(None))
-        }
-    })
+    Command::perform(
+        AsyncFileDialog::new().pick_file(),
+        |result: Option<FileHandle>| {
+            if let Some(handle) = result {
+                Message::Files(Files::FileSelected(Some(handle.path().to_owned())))
+            } else {
+                Message::Files(Files::FileSelected(None))
+            }
+        },
+    )
 }

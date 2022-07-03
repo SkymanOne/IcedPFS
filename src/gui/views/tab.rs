@@ -2,7 +2,8 @@ use crate::{
     gui::IpfsRef,
     gui::{
         messages::Message,
-        widgets::tab_bar::{Position, TabBar}, Context,
+        widgets::tab_bar::{Position, TabBar},
+        Context,
     },
 };
 

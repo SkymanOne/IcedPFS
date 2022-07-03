@@ -78,7 +78,7 @@ impl Client {
     pub fn make_request_with_files<T, U>(&self, route: U, path: PathBuf) -> FutureResult<T>
     where
         U: ApiRoute<T> + Serialize + Send + 'static,
-        T: DeserializeOwned,
+        T: DeserializeOwned + Default,
     {
         let client = self.clone();
         Box::pin(async move {
@@ -113,7 +113,12 @@ impl Client {
                 .send()
                 .await
                 .map_err(ClientError::ApiError)?;
-            response.json().await.map_err(ClientError::ApiError)
+            let parsed = response.json().await.map_err(ClientError::ApiError);
+            if parsed.is_ok() {
+                parsed
+            } else {
+                Ok(T::default())
+            }
         })
     }
 }

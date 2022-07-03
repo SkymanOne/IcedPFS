@@ -24,8 +24,8 @@ pub enum Files {
     FileSelected(Option<PathBuf>),
     UploadClicked,
     FileUploaded,
-    FilesUploadFailed,
-    CloseFile
+    UploadFailed,
+    CloseFile,
 }
 
 #[derive(Debug, Clone)]

@@ -1,6 +1,6 @@
-use crate::gui::Context;
 use crate::gui::messages::Files;
 use crate::gui::widgets::tab_bar::Tab;
+use crate::gui::Context;
 use crate::ipfs_client::api::files::ListDirsRequest;
 use crate::ipfs_client::models::{FileEntry, FilesList};
 use crate::utils;
@@ -57,7 +57,9 @@ impl<'a> Tab<'a, Message> for HomeTab {
                 return request_files_list(self.ipfs_client.clone());
             }
             Message::Files(Files::CloseFile) => self.selected_file = None,
-            Message::Files(Files::FileUploaded) => return request_files_list(self.ipfs_client.clone()),
+            Message::Files(Files::FileUploaded) => {
+                return request_files_list(self.ipfs_client.clone())
+            }
             _ => {}
         }
         Command::none()
@@ -65,7 +67,7 @@ impl<'a> Tab<'a, Message> for HomeTab {
 
     fn view(&self, _: &Context) -> Element<Message> {
         if let Some(file) = &self.selected_file {
-            return display_file(file)
+            return display_file(file);
         }
         let files: Container<Message> = match &self.files {
             Some(files) => Container::new(display_files_grid(files)),

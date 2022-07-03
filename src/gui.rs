@@ -22,12 +22,14 @@ pub type IpfsRef = ipfs_client::Client;
 /// It can only be mutated by the main `Application`
 #[derive(Debug, Clone)]
 pub struct Context {
-    is_connected: bool
+    is_connected: bool,
 }
 
 impl Context {
     pub fn new() -> Self {
-        Context { is_connected: false }
+        Context {
+            is_connected: false,
+        }
     }
 
     pub fn is_connected(&self) -> bool {

@@ -33,3 +33,7 @@ pub struct FileEntry {
     #[serde(rename = "Type")]
     pub file_type: isize,
 }
+
+/// Empty model that is returned whenever the response doesn't have a body
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct OkResponse;

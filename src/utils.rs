@@ -5,7 +5,7 @@ pub enum FileSize {
     B,
     K,
     M,
-    G
+    G,
 }
 
 impl Display for FileSize {
@@ -20,9 +20,8 @@ impl Display for FileSize {
     }
 }
 
-
 pub fn shorten_file_size(size: i64) -> (f64, FileSize) {
-    let mut compressed: f64 = size  as f64;
+    let mut compressed: f64 = size as f64;
     let mut order = 0;
     if compressed == 0.0 {
         return (compressed, FileSize::B);
@@ -35,7 +34,7 @@ pub fn shorten_file_size(size: i64) -> (f64, FileSize) {
         0 => FileSize::B,
         1 => FileSize::K,
         2 => FileSize::M,
-        _ => FileSize::G
+        _ => FileSize::G,
     };
     (compressed, file_size)
 }

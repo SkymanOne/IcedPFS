@@ -1,7 +1,7 @@
 use crate::{
     gui::messages::{Message, Route},
-    gui::{views::Views, Context},
     gui::IpfsRef,
+    gui::{views::Views, Context},
     ipfs_client::models::BandwidthStats,
 };
 use iced::{

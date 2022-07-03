@@ -1,12 +1,12 @@
-use crate::ipfs_client::models::FilesList;
+use crate::ipfs_client::models::{FilesList, OkResponse};
 use serde::Serialize;
 
 use super::ApiRoute;
 
 #[derive(Clone, Debug, Serialize)]
-pub struct ListDirsRequest<'a> {
+pub struct ListDirsRequest {
     #[serde(skip_serializing_if = "Option::is_none")]
-    path: Option<&'a str>,
+    path: Option<String>,
 
     #[serde(skip_serializing_if = "Option::is_none")]
     #[serde(rename = "long")]
@@ -16,14 +16,14 @@ pub struct ListDirsRequest<'a> {
     sorted: Option<bool>,
 }
 
-impl<'a> ApiRoute<FilesList> for ListDirsRequest<'a> {
+impl ApiRoute<FilesList> for ListDirsRequest {
     fn get_route(&self) -> &str {
         "/files/ls"
     }
 }
 
 #[allow(dead_code)]
-impl<'a> ListDirsRequest<'a> {
+impl ListDirsRequest {
     pub fn new() -> Self {
         Self {
             path: None,
@@ -32,7 +32,7 @@ impl<'a> ListDirsRequest<'a> {
         }
     }
 
-    pub fn for_path(mut self, path: &'a str) -> Self {
+    pub fn for_path(mut self, path: String) -> Self {
         self.path = Some(path);
         self
     }
@@ -49,9 +49,9 @@ impl<'a> ListDirsRequest<'a> {
 }
 
 #[derive(Clone, Debug, Serialize)]
-pub struct WriteRequest<'a> {
+pub struct WriteRequest {
     #[serde(rename = "arg")]
-    path: &'a str,
+    path: String,
 
     create: bool,
 
@@ -62,14 +62,14 @@ pub struct WriteRequest<'a> {
     parents: Option<bool>,
 }
 
-impl<'a> ApiRoute<FilesList> for WriteRequest<'a> {
+impl ApiRoute<OkResponse> for WriteRequest {
     fn get_route(&self) -> &str {
         "/files/write"
     }
 }
 
-impl<'a> WriteRequest<'a> {
-    pub fn new(path: &'a str) -> Self {
+impl WriteRequest {
+    pub fn new(path: String) -> Self {
         WriteRequest {
             path,
             create: false,
