@@ -89,7 +89,7 @@ fn upload_file(client: IpfsRef, path: PathBuf) -> Command<Message> {
     let filename = path.file_name().unwrap().to_str().unwrap_or("default");
     let destination = format!("/{}", filename);
     let route = WriteRequest::new(destination).create();
-    let request = client.make_request_with_files(route, path);
+    let request = client.make_request(route, Some(path));
     Command::perform(request, |result| match result {
         Ok(_) => Message::Files(Files::FileUploaded),
         Err(err) => {

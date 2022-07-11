@@ -26,6 +26,9 @@ pub enum Files {
     FileUploaded,
     UploadFailed,
     CloseFile,
+    Remove(String),
+    RemovedSuccessfully,
+    FailedRemovingFile
 }
 
 #[derive(Debug, Clone)]

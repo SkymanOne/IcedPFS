@@ -92,7 +92,7 @@ impl<'a> Application for IcedPFS<'a> {
                 // let request = BandwidthStatsRequest::new()
                 //     .with_peer("12D3KooWER6HhMejRszMhUuCdcCyk9S2gWbph96NaazPHxLkfzPF");
                 let request = BandwidthStatsRequest::new();
-                let action = self.ipfs_client.make_request(request);
+                let action = self.ipfs_client.make_request(request, None);
                 Command::perform(action, |result| match result {
                     Ok(data) => Message::BwStatsReceived(data),
                     Err(_) => Message::Disconnected,

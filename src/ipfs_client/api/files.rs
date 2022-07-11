@@ -83,3 +83,31 @@ impl WriteRequest {
         self
     }
 }
+
+
+#[derive(Clone, Debug, Serialize)]
+pub struct RemoveFilesRequest {
+    #[serde(rename = "arg")]
+    path: String,
+
+    #[serde(skip_serializing_if = "Option::is_none")]
+    recursive: Option<bool>
+}
+
+impl ApiRoute<OkResponse> for RemoveFilesRequest {
+    fn get_route(&self) -> &str {
+        "/files/rm"
+    }
+}
+
+#[allow(dead_code)]
+impl RemoveFilesRequest {
+    pub fn new(path: String) -> Self {
+        RemoveFilesRequest { path, recursive: Option::None }
+    }
+
+    pub fn recursive(mut self) -> Self {
+        self.recursive = Some(true);
+        self
+    }
+}

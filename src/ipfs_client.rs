@@ -45,37 +45,7 @@ impl Default for Client {
 }
 
 impl Client {
-    pub fn make_request<T, U>(&self, route: U) -> FutureResult<T>
-    where
-        U: ApiRoute<T> + Serialize + Send + 'static,
-        T: DeserializeOwned,
-    {
-        let client = self.clone();
-        Box::pin(async move {
-            let result = serde_urlencoded::to_string(&route);
-
-            let params = match result {
-                Ok(val) => val,
-                Err(_) => String::new(),
-            };
-
-            let url = format!(
-                "{}{}?{}",
-                client.config.base_address,
-                route.get_route(),
-                params
-            );
-            let response = client
-                .http_client
-                .post(url)
-                .send()
-                .await
-                .map_err(ClientError::ApiError)?;
-            response.json().await.map_err(ClientError::ApiError)
-        })
-    }
-
-    pub fn make_request_with_files<T, U>(&self, route: U, path: PathBuf) -> FutureResult<T>
+    pub fn make_request<T, U>(&self, route: U, path: Option<PathBuf>) -> FutureResult<T>
     where
         U: ApiRoute<T> + Serialize + Send + 'static,
         T: DeserializeOwned + Default,
@@ -95,24 +65,22 @@ impl Client {
                 route.get_route(),
                 params
             );
+            let mut request = client.http_client.post(url);
 
-            let file = tokio::fs::File::open(path)
-                .await
-                .map_err(|_| ClientError::FileError)?;
-            let stream =
-                tokio_util::codec::FramedRead::new(file, tokio_util::codec::BytesCodec::new());
-            let body = reqwest::Body::wrap_stream(stream);
+            if let Some(path) = path {
+                let file = tokio::fs::File::open(path)
+                    .await
+                    .map_err(|_| ClientError::FileError)?;
+                let stream =
+                    tokio_util::codec::FramedRead::new(file, tokio_util::codec::BytesCodec::new());
+                let body = reqwest::Body::wrap_stream(stream);
 
-            let multipart = reqwest::multipart::Form::new()
-                .part("file", reqwest::multipart::Part::stream(body));
+                let multipart = reqwest::multipart::Form::new()
+                    .part("file", reqwest::multipart::Part::stream(body));
+                request = request.multipart(multipart);
+            }
 
-            let response = client
-                .http_client
-                .post(url)
-                .multipart(multipart)
-                .send()
-                .await
-                .map_err(ClientError::ApiError)?;
+            let response = request.send().await.map_err(ClientError::ApiError)?;
             let parsed = response.json().await.map_err(ClientError::ApiError);
             if parsed.is_ok() {
                 parsed

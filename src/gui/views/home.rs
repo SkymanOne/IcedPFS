@@ -1,7 +1,7 @@
 use crate::gui::messages::Files;
 use crate::gui::widgets::tab_bar::Tab;
 use crate::gui::Context;
-use crate::ipfs_client::api::files::ListDirsRequest;
+use crate::ipfs_client::api::files::{ListDirsRequest, RemoveFilesRequest};
 use crate::ipfs_client::models::{FileEntry, FilesList};
 use crate::utils;
 use crate::{gui::messages::Message, gui::IpfsRef};
@@ -28,15 +28,6 @@ impl HomeTab {
     }
 }
 
-fn request_files_list(client: IpfsRef) -> Command<Message> {
-    let route = ListDirsRequest::new().long_listed();
-    let request = client.make_request(route);
-    Command::perform(request, |result| match result {
-        Ok(data) => Message::Files(Files::ListReceived(data)),
-        Err(_) => Message::Files(Files::FailedToFetch),
-    })
-}
-
 impl<'a> Tab<'a, Message> for HomeTab {
     fn title(&self) -> String {
         "Home".to_string()
@@ -58,6 +49,13 @@ impl<'a> Tab<'a, Message> for HomeTab {
             }
             Message::Files(Files::CloseFile) => self.selected_file = None,
             Message::Files(Files::FileUploaded) => {
+                return request_files_list(self.ipfs_client.clone())
+            }
+            Message::Files(Files::Remove(path)) => {
+                return remove_file(self.ipfs_client.clone(), path)
+            }
+            Message::Files(Files::RemovedSuccessfully) => {
+                self.selected_file = None;
                 return request_files_list(self.ipfs_client.clone())
             }
             _ => {}
@@ -116,11 +114,13 @@ fn display_files_grid(list: &FilesList) -> Column<Message> {
 }
 
 fn display_file(file: &FileEntry) -> Element<Message> {
+    let path = format!("/{}", &file.name);
     let size = utils::shorten_file_size(file.size);
     let col = Column::new()
         .push(Text::new(format!("name: {}", file.name)))
         .push(Text::new(format!("size: {:.1}{}", size.0, size.1)))
         .push(Text::new(format!("hash: {}", file.hash)))
+        .push(Button::new(Text::new("Remove file")).on_press(Message::Files(Files::Remove(path))))
         .push(Button::new(Text::new("Close file")).on_press(Message::Files(Files::CloseFile)))
         .align_items(iced::Alignment::Center)
         .spacing(10);
@@ -131,4 +131,22 @@ fn display_file(file: &FileEntry) -> Element<Message> {
         .width(Length::Fill)
         .height(Length::Fill)
         .into()
+}
+
+fn request_files_list(client: IpfsRef) -> Command<Message> {
+    let route = ListDirsRequest::new().long_listed();
+    let request = client.make_request(route, None);
+    Command::perform(request, |result| match result {
+        Ok(data) => Message::Files(Files::ListReceived(data)),
+        Err(_) => Message::Files(Files::FailedToFetch),
+    })
+}
+
+fn remove_file(client: IpfsRef, path: String) -> Command<Message> {
+    let route = RemoveFilesRequest::new(path);
+    let request = client.make_request(route, None);
+    Command::perform(request, |result| match result {
+        Ok(_) => Message::Files(Files::RemovedSuccessfully),
+        Err(_) => Message::Files(Files::FailedRemovingFile),
+    })
 }
