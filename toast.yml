@@ -1,9 +1,19 @@
-image: amd64/rust:1
+image: ubuntu
 tasks:
+  install_dependencies:
+    description: "Installing ubuntu rust and other things"
+    command: |
+      apt-get update
+      apt-get install -y build-essential curl libgtk-3-dev libssl-dev
+      curl https://sh.rustup.rs -sSf | bash -s -- -y
   build:
     description: "Building package"
+    dependencies:
+      - install_dependencies
     input_paths:
       - Cargo.toml
       - Cargo.lock
       - src
-    command: cargo build
+    command: | 
+      source "$HOME/.cargo/env"
+      cargo build
