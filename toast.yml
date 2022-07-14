@@ -1,4 +1,4 @@
-image: skymanone/fleet_runner
+image: amd64/rust:1-slim
 tasks:
   build:
     description: "Building package"
@@ -6,4 +6,4 @@ tasks:
       - Cargo.toml
       - Cargo.lock
       - src
-    command: fleet build
+    command: cargo build
