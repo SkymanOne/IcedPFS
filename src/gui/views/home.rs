@@ -56,7 +56,7 @@ impl<'a> Tab<'a, Message> for HomeTab {
             }
             Message::Files(Files::RemovedSuccessfully) => {
                 self.selected_file = None;
-                return request_files_list(self.ipfs_client.clone())
+                return request_files_list(self.ipfs_client.clone());
             }
             _ => {}
         }
@@ -87,30 +87,33 @@ fn display_files_grid(list: &FilesList) -> Column<Message> {
         row = row
             .push(
                 Button::new(
-                    Text::new(&file.name)
-                        .width(Length::Fill)
-                        .width(Length::Fill)
+                    Text::new(file.get_short_filename(13))
+                        .width(Length::Shrink)
+                        .height(Length::Fill)
+                        .size(20)
                         .vertical_alignment(iced::alignment::Vertical::Center)
                         .horizontal_alignment(iced::alignment::Horizontal::Center),
                 )
                 .on_press(Message::Files(Files::FileClicked(file.to_owned().clone())))
                 .height(Length::Units(40))
-                .width(Length::Shrink),
+                .width(Length::Units(100)),
             )
-            .width(Length::Fill)
-            .height(Length::Fill)
+            .width(Length::Shrink)
+            .height(Length::Shrink)
             .spacing(10)
             .padding(10);
-        if i > 0 && i % 7 == 0 {
+        if i > 0 && (i+1) % 5 == 0 {
             col = col.push(row);
+            let r: Element<Message> = Row::new().into();
+            r.as_widget().width();
             row = Row::new();
         }
     }
     col = col.push(row);
     col.spacing(5)
         .align_items(iced::Alignment::Start)
-        .height(Length::Fill)
-        .height(Length::Fill)
+        .width(Length::Fill)
+        .height(Length::Shrink)
 }
 
 fn display_file(file: &FileEntry) -> Element<Message> {
